@@ -1,0 +1,2843 @@
+<!DOCTYPE html>
+<!--
+  ===========================================================================
+  THE DIAL — a Group 2 (3-wheel) safe-dial manipulation trainer.
+  Created & developed by Isaac Hashman  ("Midnight Philopicker").
+  Original work. Please keep this credit intact. (c) 2026 Isaac Hashman.
+  ===========================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>THE DIAL — Group 2 manipulation trainer</title>
+<meta name="description" content="A live, mechanically accurate Group 2 safe-dial manipulation trainer. Read the dial, feel the contacts, crack it by hand.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="THE DIAL">
+<meta property="og:title" content="THE DIAL — Group 2 safe-dial trainer">
+<meta property="og:description" content="A live, mechanically accurate safe-dial manipulation trainer. Read the dial, feel the contacts, crack it by hand.">
+<meta property="og:image" content="https://thedial.ca/share-dialhub.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://thedial.ca/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="THE DIAL — Group 2 safe-dial trainer">
+<meta name="twitter:description" content="A live, mechanically accurate safe-dial manipulation trainer. Read the dial, feel the contacts, crack it by hand.">
+<meta name="twitter:image" content="https://thedial.ca/share-dialhub.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#f4f5f7">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="DialHub">
+<link rel="apple-touch-icon" href="icon-dialhub-180.png">
+<style>
+  :root{
+    --bg:#06070a; --ink:#e7e3d8; --amber:#e8a33d; --red:#d6324a; --teal:#4cc6c0;
+    --panel:#0d0f14; --line:#2a313c; --dim:#7b8590;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;min-height:100%;max-width:100%;overflow-x:hidden;background:var(--bg);color:var(--ink);
+    font-family:ui-monospace,"Courier New",monospace;-webkit-user-select:none;user-select:none;}
+  body{overflow-x:hidden;overflow-y:auto;touch-action:pan-y;-webkit-overflow-scrolling:touch;}
+  .screen{display:none;flex-direction:column;align-items:center;min-height:100vh;
+    padding:18px 0 120px;gap:10px;}
+  .screen.active{display:flex;}
+  .ttl{letter-spacing:.32em;font-size:13px;color:var(--amber);text-align:center;margin-top:8px;}
+  .ttl b{color:var(--ink);}
+  .sub{font-size:12px;letter-spacing:.16em;color:var(--dim);text-align:center;margin-bottom:6px;}
+  .menucol{display:flex;flex-direction:column;gap:11px;width:88vw;max-width:340px;margin-top:14px;}
+  .mbtn{background:var(--panel);border:1px solid var(--line);color:var(--ink);border-radius:13px;
+    font-family:inherit;font-size:15px;letter-spacing:.12em;padding:17px;cursor:pointer;text-align:center;}
+  .mbtn:active{background:#1c2129;}
+  .mbtn .d{display:block;font-size:11px;letter-spacing:.08em;color:var(--dim);margin-top:5px;}
+  .mbtn.amber{color:var(--amber);border-color:#43350f;}
+  .mbtn.small{font-size:12px;padding:13px;letter-spacing:.1em;}
+  .mrow{display:flex;gap:11px;width:88vw;max-width:340px;}
+  .mrow .mbtn{flex:1;}
+  canvas{background:#000;border:1px solid #151a20;border-radius:8px;width:auto;height:auto;
+    max-width:96vw;touch-action:none;box-shadow:0 0 50px rgba(232,163,61,.06);}
+  #status{font-size:13px;letter-spacing:.04em;min-height:17px;color:var(--teal);text-align:center;padding:0 8px;}
+  .row{display:flex;gap:8px;justify-content:center;width:96vw;max-width:460px;}
+  .btn{background:var(--panel);border:1px solid var(--line);color:var(--amber);border-radius:11px;
+    font-family:inherit;display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:pan-y;}
+  .btn:active,.btn.on{background:#1c2129;color:#fff;border-color:var(--amber);}
+  .turn{flex:1;height:60px;font-size:14px;letter-spacing:.1em;}
+  .spd-row{display:flex;align-items:center;gap:12px;padding:4px 2px;}
+  .spd-end{font-size:12px;letter-spacing:.1em;color:var(--dim);flex:0 0 auto;}
+  .spd-slider{flex:1;-webkit-appearance:none;appearance:none;height:8px;border-radius:5px;
+    background:linear-gradient(90deg,#2a313c,var(--amber));outline:none;margin:0;}
+  .spd-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:28px;height:28px;
+    border-radius:50%;background:var(--amber);border:3px solid #14171d;box-shadow:0 1px 5px rgba(0,0,0,.55);cursor:pointer;}
+  .spd-slider::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:var(--amber);
+    border:3px solid #14171d;box-shadow:0 1px 5px rgba(0,0,0,.55);cursor:pointer;}
+  .spd.sel{background:#1c2129;color:#fff;border-color:var(--teal);}
+  .util{flex:1;height:40px;font-size:14px;letter-spacing:.04em;color:var(--ink);}
+  .util.on{background:#16201f;color:var(--teal);border-color:var(--teal);}
+  .util.warn{color:var(--red);border-color:#4a1f26;}
+  #practice{width:96vw;max-width:460px;background:var(--panel);border:1px solid var(--line);
+    border-radius:8px;padding:11px 9px;font-size:15px;line-height:1.7;display:none;color:#b9c2cc;}
+  #practice.show{display:block;}
+  #practice .k{color:var(--amber);} #practice .v{color:#fff;}
+  #practice .ok{color:var(--teal);} #practice .no{color:#7b8590;} #practice .low0{color:#f2cd6e;}
+  .topbar{display:flex;justify-content:space-between;align-items:center;width:96vw;max-width:460px;}
+  .lnk{font-size:11px;letter-spacing:.1em;color:var(--dim);cursor:pointer;padding:6px 4px;}
+  .lnk:active{color:var(--ink);}
+  /* ---------- HUB (white launcher) ---------- */
+  body.hub-active{background:#f4f5f7;}
+  #hubScreen{background:#f4f5f7;color:#1a1d22;justify-content:flex-start;padding:0 0 60px;}
+  .hubtop{display:flex;justify-content:space-between;align-items:center;width:100%;max-width:640px;padding:16px 18px 8px;}
+  .hubmark{font-size:15px;letter-spacing:.1em;font-weight:bold;color:#1a1d22;display:flex;align-items:center;gap:9px;}
+  .hubmark .dot{color:#2f7de0;font-size:13px;}
+  .hublogin{font-size:10.5px;letter-spacing:.1em;color:#1a1d22;border:1px solid #cfd4da;border-radius:9px;
+    padding:8px 16px;cursor:pointer;background:#fff;touch-action:pan-y;position:relative;z-index:160;}
+  .hublogin:active{background:#ebedf0;}
+  .hubinstall{align-self:center;width:100%;max-width:640px;padding:2px 18px 8px;font-size:11px;letter-spacing:.04em;
+    color:#2f7de0;cursor:pointer;touch-action:pan-y;}
+  .hubtabs{display:flex;gap:16px;width:100%;max-width:640px;padding:6px 18px 0;
+    overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;-ms-overflow-style:none;}
+  .hubtabs::-webkit-scrollbar{display:none;}
+  .hubtab{font-size:11px;letter-spacing:.08em;color:#9aa1ab;cursor:pointer;padding:9px 0;white-space:nowrap;flex:0 0 auto;
+    border-bottom:2px solid transparent;touch-action:pan-y;}
+  .hubtab.sel{color:#1a1d22;border-bottom-color:#c8841f;}
+  .hubdivider{width:100%;max-width:640px;border-top:1px solid #e3e6ea;margin-bottom:20px;}
+  .hubcontent{width:100%;max-width:640px;}
+  .applist{display:grid;grid-template-columns:repeat(auto-fill,94px);gap:22px 20px;padding:2px 18px;justify-content:start;}
+  .app{display:flex;flex-direction:column;align-items:center;gap:9px;width:94px;cursor:pointer;touch-action:pan-y;}
+  .appicon{width:80px;height:80px;border-radius:19px;background:#0b0d11;border:1px solid #20252e;
+    display:flex;align-items:center;justify-content:center;box-shadow:0 5px 16px rgba(20,25,35,.14);transition:transform .06s;}
+  .app:active .appicon{transform:scale(.94);}
+  .applabel{font-size:11px;letter-spacing:.03em;color:#3a3f47;text-align:center;line-height:1.3;}
+  .hublbtabs{display:flex;gap:10px;padding:0 18px 12px;}
+  .hublbtab{font-size:10.5px;letter-spacing:.12em;color:#9aa1ab;border:1px solid #d6dadf;border-radius:9px;
+    padding:9px 18px;cursor:pointer;background:#fff;touch-action:pan-y;}
+  .hublbtab.sel{color:#1a1d22;border-color:#c8841f;background:#fff7ec;}
+  .hublbcap{padding:0 18px 10px;font-size:10px;letter-spacing:.03em;color:#9aa1ab;}
+  .hublblist{display:flex;flex-direction:column;gap:7px;padding:0 18px;}
+  .hublbrow{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e6e9ed;border-radius:11px;padding:12px 14px;cursor:pointer;}
+  .hublbrow:active{filter:brightness(0.97);}
+  .hublbcert{color:#c2c7ce;font-size:18px;line-height:1;margin-left:2px;}
+  .hublbrow.top1{border-color:#e8c277;background:#fffaf0;}
+  .hublbrank{width:20px;color:#9aa1ab;font-size:12px;font-variant-numeric:tabular-nums;}
+  .hublbname{flex:1;color:#1a1d22;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .hublbtime{color:#b9791a;font-size:13px;font-variant-numeric:tabular-nums;}
+  .hublbempty{color:#9aa1ab;font-size:12px;text-align:center;padding:26px 14px;line-height:1.6;}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(18px);opacity:0;pointer-events:none;
+    background:#11151c;border:1px solid var(--line);border-radius:10px;padding:11px 16px;font-size:11px;
+    letter-spacing:.05em;color:#fff;transition:opacity .2s,transform .2s;max-width:86vw;text-align:center;z-index:50;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .hublogin.signedin{color:#2f7de0;border-color:#bcd3f3;background:#f3f8ff;}
+  /* ---------- login / account modal ---------- */
+  .authov{position:fixed;inset:0;background:rgba(18,22,28,.55);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;}
+  #authOv{z-index:140;}
+  .authshow{font-size:12px;color:#6a7684;cursor:pointer;margin:-2px 0 4px;user-select:none;}
+  .authov.show{display:flex;}
+  .authcard{background:#fff;border-radius:18px;padding:24px 22px;width:100%;max-width:360px;position:relative;
+    box-shadow:0 18px 50px rgba(0,0,0,.32);color:#1a1d22;}
+  .authclose{position:absolute;top:10px;right:15px;font-size:24px;color:#9aa1ab;cursor:pointer;line-height:1;padding:4px;}
+  .authtitle{font-size:17px;font-weight:bold;letter-spacing:.01em;margin-bottom:6px;}
+  .authsub{font-size:11.5px;color:#7b8590;line-height:1.55;margin-bottom:18px;}
+  .authgoogle{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;
+    border:1px solid #d0d5db;border-radius:10px;padding:12px;font-size:13px;color:#1a1d22;cursor:pointer;font-family:inherit;}
+  .authgoogle:active{background:#f1f3f5;}
+  .authgoogle:disabled{opacity:.6;}
+  .gmark{font-weight:bold;color:#4285F4;font-size:15px;}
+  .author{display:flex;align-items:center;gap:10px;color:#b3b9c0;font-size:11px;margin:15px 0;}
+  .author::before,.author::after{content:"";flex:1;border-top:1px solid #e6e9ed;}
+  .authinput{width:100%;border:1px solid #d0d5db;border-radius:10px;padding:12px;font-size:14px;
+    font-family:inherit;margin-bottom:10px;color:#1a1d22;background:#fff;}
+  .authinput:focus{outline:none;border-color:#2f7de0;}
+  .autherr{color:#d6324a;font-size:11.5px;min-height:15px;margin-bottom:7px;line-height:1.4;}
+  .authprimary{width:100%;background:#1a1d22;color:#fff;border:none;border-radius:10px;padding:13px;
+    font-size:13px;letter-spacing:.04em;cursor:pointer;font-family:inherit;}
+  .authprimary:active{background:#33383f;}
+  .authprimary:disabled{opacity:.6;cursor:default;}
+  .authrow{display:flex;justify-content:space-between;margin-top:14px;}
+  .authlink{font-size:11.5px;color:#2f7de0;cursor:pointer;}
+  #timer{font-size:20px;letter-spacing:.12em;color:var(--amber);font-variant-numeric:tabular-nums;}
+  #eligibility{font-size:10px;letter-spacing:.18em;color:var(--dim);margin-top:3px;text-align:center;}
+  .elig-master{color:var(--teal);}
+  .elig-appr{color:#e8c84a;}
+  #timer.stopped{color:var(--teal);}
+  .toggle{display:flex;justify-content:space-between;align-items:center;width:88vw;max-width:340px;
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px 17px;}
+  .toggle .lab{font-size:13px;letter-spacing:.06em;}
+  .toggle .lab .d{display:block;font-size:9.5px;color:var(--dim);margin-top:4px;letter-spacing:.04em;}
+  .sw{width:58px;height:30px;border-radius:16px;background:#1a1f27;border:1px solid var(--line);
+    position:relative;cursor:pointer;flex:none;}
+  .sw .kn{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#555c66;transition:all .14s;}
+  .sw.on{background:#16201f;border-color:var(--teal);}
+  .sw.on .kn{left:31px;background:var(--teal);}
+  /* overlays */
+  .ov{position:fixed;inset:0;background:rgba(2,3,5,.82);display:none;align-items:center;justify-content:center;
+    z-index:30;padding:22px;}
+  .ov.show{display:flex;}
+  .card{background:#0c0e13;border:1px solid var(--line);border-radius:16px;padding:22px;width:92vw;max-width:380px;text-align:center;}
+  .card h3{margin:0 0 10px;font-size:15px;letter-spacing:.1em;color:var(--amber);}
+  .card p{font-size:12px;line-height:1.6;color:#c2cad2;margin:0 0 18px;}
+  .card .cbtns{display:flex;gap:10px;}
+  .card .cbtns .mbtn{flex:1;font-size:15px;padding:14px;}
+  .card input:not(.combo-in){width:100%;background:#06070a;border:1px solid var(--line);color:var(--ink);border-radius:9px;
+    padding:11px;font-family:inherit;font-size:13px;margin-bottom:14px;text-align:center;}
+  /* vault */
+  #vaultWrap{display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:6px;}
+  #vaultCanvas{cursor:pointer;}
+  .cert{background:linear-gradient(160deg,#13161d,#0a0c10);border:2px solid var(--amber);border-radius:14px;
+    padding:24px 20px;width:92vw;max-width:400px;text-align:center;color:var(--ink);}
+  .cert .seal{font-size:11px;letter-spacing:.3em;color:var(--amber);}
+  .cert h2{font-size:18px;letter-spacing:.06em;margin:14px 0 6px;}
+  .cert .big{font-size:30px;color:var(--teal);letter-spacing:.12em;font-variant-numeric:tabular-nums;margin:10px 0;}
+  .cert .nm{font-size:16px;color:#fff;margin:6px 0;border-bottom:1px solid var(--line);padding-bottom:8px;}
+  .cert small{font-size:10px;color:var(--dim);letter-spacing:.06em;line-height:1.7;display:block;margin-top:12px;}
+  .cert .certrows{margin:14px 0 4px;border-top:1px solid var(--line);padding-top:10px;}
+  .cert .certrow{display:flex;justify-content:space-between;align-items:baseline;font-size:11px;letter-spacing:.04em;margin:5px 0;}
+  .cert .certrow span{color:var(--dim);}
+  .cert .certrow b{color:#e7e3d8;font-variant-numeric:tabular-nums;letter-spacing:.08em;}
+  .cert-share{margin-top:16px;width:100%;padding:13px;border-radius:9px;cursor:pointer;
+    background:linear-gradient(180deg,#3a2c12,#241a0c);border:1px solid var(--amber);color:var(--amber);
+    font-family:inherit;font-size:13px;letter-spacing:.1em;}
+  .cert-share:active{filter:brightness(1.3);}
+  .cert-img-wrap{width:100%;max-width:380px;margin:0 auto;}
+  .cert-img{width:100%;height:auto;display:block;border-radius:12px;}
+  .cert-btns{display:flex;gap:10px;max-width:380px;margin:0 auto;}
+  .cert-btns .cert-share{flex:1;margin-top:14px;}
+  .cert-dl{background:linear-gradient(180deg,#13202a,#0c151b)!important;border-color:var(--teal)!important;color:var(--teal)!important;}
+  .cert-reset{text-align:center;font-size:10px;color:var(--dim);letter-spacing:.06em;margin-top:12px;}
+  .codearea{width:100%;box-sizing:border-box;background:#0a0c10;border:1px solid var(--line);border-radius:8px;
+    color:#cdd3da;font-family:ui-monospace,monospace;font-size:11px;line-height:1.5;padding:10px;resize:none;
+    word-break:break-all;letter-spacing:.02em;}
+  .codearea:focus{outline:none;border-color:var(--teal);}
+  #saveMsg,#loadMsg{font-size:11px;letter-spacing:.04em;margin:8px 0 2px;min-height:15px;}
+  .msg-ok{color:var(--teal)!important;}
+  .msg-err{color:#e8896b!important;}
+  #catEgg{position:absolute;right:0;top:0;bottom:0;width:13px;background:transparent;
+    border:0;padding:0;margin:0;pointer-events:none;user-select:none;outline:none;
+    -webkit-tap-highlight-color:transparent;-webkit-appearance:none;appearance:none;}
+  #catEgg:focus,#catEgg:focus-visible{outline:none;}
+  .catcard{position:relative;max-width:380px;width:100%;}
+  .catcard img{width:100%;height:auto;display:block;border-radius:16px;}
+  .catclose{position:absolute;top:10px;right:10px;width:40px;height:40px;border-radius:50%;
+    background:rgba(0,0,0,.55);border:2px solid rgba(255,255,255,.82);color:#fff;font-size:22px;line-height:1;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;padding:0;}
+  .catclose:active{filter:brightness(1.3);}
+  .combo-inputs{display:flex;align-items:center;justify-content:center;gap:10px;margin:8px 0 6px;}
+  .combo-spin{display:flex;flex-direction:column;align-items:center;gap:5px;}
+  .combo-arrow{width:76px;height:30px;line-height:28px;text-align:center;color:var(--amber);font-size:17px;
+    background:#0b0d11;border:1px solid var(--line);border-radius:8px;user-select:none;-webkit-user-select:none;cursor:pointer;}
+  .combo-arrow:active{background:#1a2129;}
+  .combo-num{width:76px;height:76px;line-height:76px;text-align:center;font-family:inherit;font-size:44px;font-weight:700;
+    color:var(--ink);background:#11141a;border:2px solid var(--line);border-radius:14px;
+    user-select:none;-webkit-user-select:none;touch-action:none;cursor:ns-resize;transition:border-color .15s,color .15s;}
+  .combo-num.bad{border-color:var(--red);color:#ff9683;}
+  .combo-num.warn{border-color:#d8a93a;color:#f2cd6e;}
+  .combo-dash{font-size:30px;color:var(--dim);font-weight:700;}
+  .combo-msgs{height:84px;overflow-y:auto;margin:10px 2px 2px;font-size:12px;line-height:1.5;}
+  .combo-msgs .err{color:#ef8a73;display:block;margin:2px 0;}
+  .combo-msgs .wrn{color:#e3b54e;display:block;margin:2px 0;}
+  .combo-msgs .ok{color:var(--teal);display:block;}
+  .tier-card{max-width:320px;margin:18px auto 0;background:#0b0d11;border:1px solid var(--line);border-radius:12px;padding:13px 15px;}
+  .tier-h{font-size:11px;letter-spacing:.14em;color:var(--amber);text-align:center;margin-bottom:8px;}
+  .tier-card p{font-size:12.5px;line-height:1.6;color:#b9c2cc;margin:0 0 9px;}
+  .tier-card p:last-child{margin-bottom:0;}
+  .tier-card b{color:var(--ink);font-weight:700;}
+  .reveal-big{height:50px!important;font-size:17px!important;letter-spacing:.14em;
+    border-color:var(--amber)!important;color:var(--amber)!important;
+    box-shadow:0 0 0 1px rgba(232,163,61,.20), 0 2px 16px rgba(232,163,61,.07);}
+  .reveal-big.on{border-color:var(--teal)!important;color:var(--teal)!important;box-shadow:none;}
+  #comboReveal{margin:8px auto 0;max-width:360px;letter-spacing:.05em;color:#caa94a;
+    background:rgba(232,163,61,.08);border:1px solid rgba(232,163,61,.32);border-radius:8px;padding:9px 10px;text-align:center;}
+  #comboReveal .cr-combo{font-size:21px;color:#f0d48a;font-variant-numeric:tabular-nums;letter-spacing:.16em;}
+  #comboReveal .cr-bind{font-size:11px;color:#d8c690;letter-spacing:.08em;margin-top:4px;font-variant-numeric:tabular-nums;}
+  #comboReveal .cr-lab{color:rgba(231,227,216,.45);font-size:10px;margin-right:4px;letter-spacing:.1em;}
+  .credit{margin-top:28px;text-align:center;line-height:1.65;padding-bottom:6px;}
+  .credit .c1{font-size:9px;letter-spacing:.24em;color:rgba(231,227,216,.30);text-transform:uppercase;}
+  .credit .c2{font-size:12.5px;letter-spacing:.18em;color:rgba(231,227,216,.82);margin-top:4px;}
+  .credit .aka{font-size:8.5px;letter-spacing:.34em;color:rgba(231,227,216,.30);margin-top:6px;text-transform:uppercase;}
+  .credit .c3{font-size:12px;letter-spacing:.22em;color:var(--amber);margin-top:5px;}
+  .tipjar{display:inline-block;margin-top:16px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--dim);text-decoration:none;border:1px solid var(--line);border-radius:22px;padding:9px 20px;}
+  .tipjar:active{color:var(--ink);border-color:var(--amber);background:#1c2129;}
+  .tipjar .heart{color:var(--red);}
+  .lbtabs{display:flex;gap:8px;width:88vw;max-width:340px;margin-top:8px;}
+  .lbtab{flex:1;text-align:center;padding:11px;border:1px solid var(--line);border-radius:10px;
+    font-size:12px;letter-spacing:.12em;color:var(--dim);cursor:pointer;}
+  .lbtab.sel{color:#fff;border-color:var(--amber);background:#1c2129;}
+  .lblist{width:92vw;max-width:360px;margin-top:12px;display:flex;flex-direction:column;gap:6px;}
+  .lbrow{display:flex;align-items:center;background:var(--panel);border:1px solid var(--line);
+    border-radius:9px;padding:11px 14px;font-size:13px;}
+  .lbrow.top1{border-color:var(--amber);} .lbrow.top1 .lbrank{color:var(--amber);}
+  .lbrank{width:30px;color:var(--dim);font-size:12px;font-variant-numeric:tabular-nums;}
+  .lbname{flex:1;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:8px;}
+  .lbtime{color:var(--teal);font-variant-numeric:tabular-nums;letter-spacing:.06em;}
+  .lbrow{cursor:pointer;}
+  .lbcert{color:var(--dim);font-size:18px;margin-left:10px;line-height:1;}
+  .lbrow:active{filter:brightness(1.25);}
+  .lbempty{text-align:center;color:var(--dim);font-size:12px;padding:24px 12px;line-height:1.7;}
+  #lbRefresh{font-size:11px;letter-spacing:.1em;}
+  .feedback{margin-top:16px;font-size:10px;letter-spacing:.1em;color:rgba(231,227,216,.30);text-align:center;
+    -webkit-user-select:text;user-select:text;}
+  .feedback a{color:rgba(231,227,216,.58);text-decoration:none;-webkit-user-select:text;user-select:text;}
+  .feedback a:active{color:var(--amber);}
+  .memcount{font-size:12px;letter-spacing:.06em;color:#8a9199;padding:14px 20px 6px;}
+  .memlist{display:flex;flex-direction:column;width:100%;max-width:640px;}
+  .memrow{display:flex;align-items:center;gap:12px;padding:12px 20px;cursor:pointer;border-bottom:1px solid #e6e8ec;}
+  .memrow:active{background:#eceef1;}
+  .memav{width:34px;height:34px;border-radius:50%;background:#dfe3e8;color:#aab1ba;display:flex;
+    align-items:center;justify-content:center;font-size:16px;flex:0 0 auto;}
+  .memname{font-size:15px;color:#1a1d22;font-weight:600;flex:1;}
+  .memchev{color:#b6bcc4;font-size:18px;}
+  .memempty{padding:26px 20px;color:#8a9199;font-size:14px;text-align:center;line-height:1.6;}
+  .memsignin{display:inline-block;margin-top:10px;padding:8px 18px;background:#c8841f;color:#fff;
+    border-radius:8px;font-size:13px;letter-spacing:.04em;cursor:pointer;}
+  .profpic{width:96px;height:96px;border-radius:50%;background:#e6e8ec;overflow:hidden;
+    color:#aab1ba;display:flex;align-items:center;justify-content:center;font-size:44px;margin:6px auto 0;}
+  .profpicnote{font-size:11px;color:#8a9199;letter-spacing:.04em;margin-top:8px;}
+  .proftimes{margin-top:16px;display:flex;flex-direction:column;gap:8px;text-align:left;}
+  .proftime{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,0,0,.045);
+    border-radius:8px;}
+  .proftier{font-size:11px;letter-spacing:.08em;color:#8a9199;width:82px;flex:0 0 auto;}
+  .proftval{font-family:ui-monospace,monospace;font-size:15px;color:#1a1d22;margin-left:auto;}
+  .safedial{flex:0 0 auto;}
+  .proftnone{color:#8a9199;font-size:13px;padding:6px 2px;text-align:center;}
+  .profbio{font-size:13px;color:#3a4048;line-height:1.5;margin-top:12px;white-space:pre-wrap;word-break:break-word;text-align:center;}
+  .profedit{display:inline-block;margin-top:16px;padding:9px 24px;background:#2f7de0;color:#fff;border-radius:8px;font-size:13px;letter-spacing:.03em;cursor:pointer;}
+  .profsave{display:inline-block;margin-top:12px;padding:9px 24px;background:#c8841f;color:#fff;border-radius:8px;font-size:13px;letter-spacing:.03em;cursor:pointer;}
+  .profunsaved{font-size:12px;color:#c8841f;margin-top:12px;}
+  .bioremain{font-size:11px;color:#8a9199;margin-top:4px;text-align:right;}
+  #certViewOv{z-index:120;}
+</style>
+</head>
+<body>
+
+<div id="bootGate" style="position:fixed;inset:0;background:#06070a;z-index:200;display:flex;align-items:center;justify-content:center;">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:16px;">
+    <img src="logo-dial.png" alt="DialHub" style="width:140px;height:140px;object-fit:contain;">
+    <div style="font-size:20px;font-weight:bold;letter-spacing:.12em;color:#eef1f4;">DialHub</div>
+  </div>
+</div>
+
+<!-- ===================== MENU ===================== -->
+<div id="hubScreen" class="screen active">
+  <div class="hubtop">
+    <div class="hubmark"><span class="dot">&#9673;</span>DialHub</div>
+    <div class="hublogin" id="hubLogin">LOG&nbsp;IN</div>
+  </div>
+  <div class="hubinstall" id="hubInstall" style="display:none;">+ Install DialHub</div>
+  <div class="hubtabs">
+    <div class="hubtab sel" data-cat="sims">SIMULATORS</div>
+    <div class="hubtab" data-cat="training">TRAINING</div>
+    <div class="hubtab" data-cat="members">MEMBERS</div>
+    <div class="hubtab" data-cat="leaderboards">LEADERBOARDS</div>
+  </div>
+  <div class="hubdivider"></div>
+  <div class="hubcontent">
+    <div class="hubcat" id="cat-sims">
+      <div class="applist" id="appGrid"></div>
+    </div>
+    <div class="hubcat" id="cat-training" style="display:none;"></div>
+    <div class="hubcat" id="cat-members" style="display:none;">
+      <div class="memcount" id="memCount"></div>
+      <div class="memlist" id="memList"></div>
+    </div>
+    <div class="hubcat" id="cat-leaderboards" style="display:none;">
+      <div class="hublbtabs">
+        <div class="hublbtab sel" data-htier="master">MASTER</div>
+        <div class="hublbtab" data-htier="apprentice">APPRENTICE</div>
+      </div>
+      <div class="hublbcap" id="hubLbCap"></div>
+      <div class="hublblist" id="hubLbList"></div>
+    </div>
+  </div>
+  <div class="toast" id="hubToast"></div>
+</div>
+
+<!-- ===================== MEMBER PROFILE ===================== -->
+<div class="authov" id="profileOv">
+  <div class="authcard" style="max-width:340px;text-align:center;">
+    <div class="authclose" id="profileClose">&times;</div>
+    <div class="profpic" id="profilePic"><span>&#9673;</span></div>
+    <div class="profpicnote">Custom profile pictures coming soon</div>
+    <div class="authtitle" id="profileName" style="margin-top:8px;"></div>
+    <input class="authinput" id="profileNameEdit" maxlength="24" placeholder="display name" style="display:none;text-align:center;margin-top:6px;">
+    <div class="authsub" id="profileSince" style="margin-top:-8px;"></div>
+    <div class="profbio" id="profileBio"></div>
+    <textarea class="authinput" id="profileBioEdit" maxlength="160" rows="3" placeholder="Write a short bio (up to 160 characters)" style="display:none;resize:none;margin-top:10px;"></textarea>
+    <div class="bioremain" id="profileBioRemain" style="display:none;"></div>
+    <div class="proftimes" id="profileTimes"></div>
+    <div class="profedit" id="profileEditBtn" style="display:none;">Edit profile</div>
+    <div id="profileSaveWrap" style="display:none;">
+      <div class="profunsaved" id="profileUnsaved" style="display:none;">You have unsaved changes</div>
+      <div class="autherr" id="profileErr"></div>
+      <div class="profsave" id="profileSaveBtn">Save changes</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== LOGIN / ACCOUNT ===================== -->
+<div class="authov" id="authOv">
+  <div class="authcard">
+    <div class="authclose" id="authClose">&times;</div>
+    <div id="authForm">
+      <div class="authtitle" id="authTitle">Sign in to DialHub</div>
+      <div class="authsub">Play free &mdash; an account just lets your times onto the leaderboard.</div>
+      <button class="authgoogle" id="authGoogle"><span class="gmark">G</span>Continue with Google</button>
+      <div class="author"><span>or</span></div>
+      <input class="authinput" id="authName" type="text" placeholder="display name (required)" autocomplete="off" maxlength="40" style="display:none;">
+      <input class="authinput" id="authEmail" type="email" placeholder="email" autocomplete="email">
+      <input class="authinput" id="authPass" type="password" placeholder="password" autocomplete="off">
+      <input class="authinput" id="authPass2" type="password" placeholder="confirm password" autocomplete="off" style="display:none;">
+      <div class="authshow" id="authShowPw">Show password</div>
+      <div class="autherr" id="authErr"></div>
+      <button class="authprimary" id="authPrimary">Sign in</button>
+      <div class="authrow">
+        <span class="authlink" id="authForgot">Forgot password?</span>
+        <span class="authlink" id="authToggle">Create account</span>
+      </div>
+    </div>
+    <div id="authAccount" style="display:none;">
+      <div class="authtitle">Your account</div>
+      <div class="authsub" id="authWho"></div>
+      <div class="authsub" id="authHandleLine" style="margin-top:-10px;"></div>
+      <button class="authprimary" id="authEditName" style="background:#2f7de0;margin-bottom:10px;">My profile</button>
+      <button class="authprimary" id="authLogout">Log out</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SET DISPLAY NAME ===================== -->
+<div class="authov" id="handleOv">
+  <div class="authcard">
+    <div class="authtitle">Choose your display name</div>
+    <div class="authsub">This is the name shown on the leaderboard &mdash; you need one to post your times. You can change it later. Or log out to keep using the trainer for free.</div>
+    <input class="authinput" id="handleInput" type="text" placeholder="display name" autocomplete="off" maxlength="24">
+    <div class="autherr" id="handleErr"></div>
+    <button class="authprimary" id="handleSave">Save name</button>
+    <div class="authrow" style="justify-content:center;">
+      <span class="authlink" id="handleSkip">Skip for now</span>
+      <span class="authlink" id="handleLogout" style="display:none;">Log out</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== DIAL: MENU ===================== -->
+<div id="menuScreen" class="screen">
+  <div class="topbar"><span class="lnk" data-go="hub">&lsaquo; HUB</span><span></span></div>
+  <div class="ttl"><b>THE DIAL</b></div>
+  <div class="sub">GROUP 2 MANIPULATION TRAINER</div>
+  <div class="menucol">
+    <div class="mbtn amber" data-go="practice">PRACTICE<span class="d">open dial · full reveal readouts</span></div>
+    <div class="mbtn amber" data-go="challengeIntro">CHALLENGE<span class="d">no readouts · timed · feeds the vault</span></div>
+    <div class="mbtn" data-go="vault">VAULT<span class="d">crack the challenge to open the door</span></div>
+    <div class="mbtn" data-go="leaderboard">LEADERBOARD<span class="d">master &amp; apprentice times</span></div>
+    <div class="mbtn" data-go="settings">SETTINGS<span class="d">haptic &amp; visual feedback</span></div>
+  </div>
+  <div class="mrow" style="margin-top:8px;">
+    <div class="mbtn small" id="saveBtn">SAVE</div>
+    <div class="mbtn small" id="loadBtn">LOAD</div>
+  </div>
+  <div class="sub" id="menuNote" style="margin-top:10px;"></div>
+  <a class="tipjar" href="https://ko-fi.com/midnightphilopicker" target="_blank" rel="noopener noreferrer">Tip&nbsp;Jar <span class="heart">&#9829;</span></a>
+  <div class="credit">
+    <div class="c1">created &amp; developed by</div>
+    <div class="c2">ISAAC HASHMAN</div>
+    <div class="aka">a.k.a.</div>
+    <div class="c3" style="position:relative;display:inline-block;">MIDNIGHT PHILOPICKER<button id="catEgg" aria-hidden="true" tabindex="-1"></button></div>
+  </div>
+  <div class="feedback">feedback &rarr; <a href="mailto:alockisalock@gmail.com?subject=THE%20DIAL%20%E2%80%94%20feedback">alockisalock@gmail.com</a></div>
+  <!-- simulator version tag: BUMP the number by 1 on every DIAL simulator update (v.NNs; s = server era). separate from the sw cache version -->
+  <div id="verTag" style="text-align:right;font-size:10px;letter-spacing:1.5px;color:#3d434c;font-family:ui-monospace,monospace;padding:6px 8px 4px;user-select:none;">v.46s</div>
+</div>
+
+<!-- ===================== SETTINGS ===================== -->
+<div id="settingsScreen" class="screen">
+  <div class="topbar"><span class="lnk" data-go="menu">‹ MENU</span><span></span></div>
+  <div class="ttl"><b>SETTINGS</b></div>
+  <div class="sub">how the contact edges report to you</div>
+  <div class="toggle" style="margin-top:10px;">
+    <div class="lab">HAPTIC FEEDBACK<span class="d">vibrate at a contact edge (mobile)</span></div>
+    <div class="sw on" id="swHaptic"><div class="kn"></div></div>
+  </div>
+  <div class="toggle">
+    <div class="lab">VISUAL FEEDBACK<span class="d">red blip above the index at a contact edge</span></div>
+    <div class="sw" id="swVisual"><div class="kn"></div></div>
+  </div>
+  <div class="sub" style="margin-top:14px;max-width:320px;line-height:1.7;">
+    neither reveals where the contacts are — they only blip the instant you catch an edge from the inside.
+  </div>
+</div>
+
+<!-- ===================== CHALLENGE INTRO ===================== -->
+<div id="challengeIntroScreen" class="screen">
+  <div class="topbar"><span class="lnk" data-go="menu">‹ MENU</span><span></span></div>
+  <div class="ttl"><b>CHALLENGE</b></div>
+  <div class="sub">a fresh dial · no reveal · the clock runs</div>
+  <div id="chalStatus" style="margin-top:10px;font-family:ui-monospace,monospace;font-size:13px;letter-spacing:.5px;"></div>
+  <div id="chalStatusNote" style="margin-top:6px;font-size:12px;color:#e0a24a;max-width:300px;margin-left:auto;margin-right:auto;display:none;">you must be logged in to be eligible for the high scores</div>
+  <div class="menucol" style="margin-top:30px;">
+    <div class="mbtn amber" id="startChallenge">START&nbsp;TIMER</div>
+  </div>
+  <div class="tier-card">
+    <div class="tier-h"><span class="elig-master">MASTER</span> vs <span class="elig-appr">APPRENTICE</span></div>
+    <p>Crack it in one sitting without leaving and your time posts to the <b class="elig-master">Master</b> board. Leaving the challenge screen, or switching away from the app, drops that run to <b class="elig-appr">Apprentice</b>.</p>
+    <p><b class="elig-appr">Apprentice</b> is its own board, with no pressure. You can save, step away, and come back whenever you want, and take as long as you need. Same decode, separate board.</p>
+  </div>
+  <div class="sub" id="challengeResume" style="margin-top:16px;line-height:1.7;max-width:300px;"></div>
+  <div class="sub" id="eligNotice" style="margin-top:14px;line-height:1.7;max-width:300px;"></div>
+</div>
+
+<!-- ===================== GAME (practice + challenge) ===================== -->
+<div id="gameScreen" class="screen">
+  <div class="topbar">
+    <span class="lnk" data-go="menu">‹ MENU</span>
+    <span id="timer" style="display:none;">00:00</span>
+    <span class="lnk" id="modeTag">PRACTICE</span>
+  </div>
+  <div id="eligibility" style="display:none;"></div>
+  <canvas id="c" width="440" height="492"></canvas>
+  <div id="status">hold a direction, or drag the dial with your finger</div>
+  <div id="svcWrap" style="display:none;text-align:center;margin:6px 0;">
+    <button id="svcBtn" style="background:#7a2ea8;color:#fff;border:0;padding:10px 22px;border-radius:8px;font-weight:600;font-family:inherit;font-size:14px;">SOLVE</button>
+  </div>
+  <div id="comboReveal" style="display:none;"></div>
+  <div class="row">
+    <div class="btn turn" data-turn="L">◀ TURN&nbsp;LEFT</div>
+    <div class="btn turn" data-turn="R">TURN&nbsp;RIGHT ▶</div>
+  </div>
+  <div class="row spd-row">
+    <span class="spd-end">SLOW</span>
+    <input type="range" id="spdSlider" class="spd-slider" min="0" max="100" value="0" aria-label="dial speed">
+    <span class="spd-end">FAST</span>
+  </div>
+  <div class="row">
+    <div class="btn util" id="zoomBtn" style="flex:1;">ZOOM CONTACT</div>
+  </div>
+  <div class="row">
+    <div class="btn util" id="setComboBtn" style="flex:1;">SET COMBINATION</div>
+  </div>
+  <div class="row">
+    <div class="btn util reveal-big" id="debugBtn" style="flex:1;">REVEAL &middot; see inside the lock</div>
+  </div>
+  <div id="practice"></div>
+  <div class="row">
+    <div class="btn util warn" id="resetBtn" style="flex:1;">RESET DIAL</div>
+  </div>
+</div>
+
+<!-- ===================== VAULT ===================== -->
+<div id="vaultScreen" class="screen">
+  <div class="topbar"><span class="lnk" data-go="menu">‹ MENU</span><span></span></div>
+  <div class="ttl"><b>THE VAULT</b></div>
+  <div class="sub" id="vaultSub">locked — crack the challenge dial to earn it</div>
+  <div id="vaultWrap">
+    <canvas id="vaultCanvas" width="300" height="320"></canvas>
+  </div>
+  <div id="certHolder"></div>
+</div>
+
+<!-- ===================== LEADERBOARD ===================== -->
+<div id="leaderboardScreen" class="screen">
+  <div class="topbar"><span class="lnk" data-go="menu">‹ MENU</span><span class="lnk" id="lbRefresh">&#8635; REFRESH</span></div>
+  <div class="ttl"><b>LEADERBOARD</b></div>
+  <div class="lbtabs">
+    <div class="lbtab sel" data-tier="master">MASTER</div>
+    <div class="lbtab" data-tier="apprentice">APPRENTICE</div>
+  </div>
+  <div class="sub" id="lbCaption"></div>
+  <div id="lbList" class="lblist"></div>
+</div>
+
+<!-- ===================== SERVICE ===================== -->
+<div id="serviceScreen" class="screen">
+  <div class="topbar"><span class="lnk" id="svcBack">&#8249; MENU</span><span class="lnk" id="svcRun">RUN &#9656;</span></div>
+  <div class="ttl"><b>SERVICE</b></div>
+  <textarea id="svcIn" spellcheck="false" placeholder="paste a code, e.g.  HUNT w3=high; SET w1=low w2=low w3=off; READ; SET w3=gate; READ" style="width:100%;box-sizing:border-box;height:78px;margin-top:8px;background:#0d1117;color:#cdd9e5;border:1px solid #263041;border-radius:8px;padding:10px;font-family:ui-monospace,monospace;font-size:13px;"></textarea>
+  <textarea id="svcOut" readonly spellcheck="false" style="width:100%;box-sizing:border-box;height:300px;margin-top:8px;background:#0d1117;color:#9fb0c0;border:1px solid #263041;border-radius:8px;padding:10px;font-family:ui-monospace,monospace;font-size:12px;white-space:pre;overflow:auto;"></textarea>
+  <span class="lnk" id="svcCopy" style="margin-top:8px;display:inline-block;">&#9282; COPY OUTPUT</span>
+</div>
+
+<!-- confirm overlay -->
+<div class="ov" id="confirmOv">
+  <div class="card">
+    <h3 id="cfTitle">RESET DIAL?</h3>
+    <p id="cfBody">This resets all progress on this dial.</p>
+    <div class="cbtns">
+      <div class="mbtn" id="cfNo">NO</div>
+      <div class="mbtn amber" id="cfYes">YES</div>
+    </div>
+  </div>
+</div>
+<!-- leave-challenge warning -->
+<div class="ov" id="leaveOv">
+  <div class="card">
+    <h3>LEAVE THE CHALLENGE?</h3>
+    <p>This drops you to the <b>Apprentice</b> leaderboard &mdash; you won&rsquo;t be eligible for <b>Master</b> on this dial.<br><span style="color:var(--dim)">Your dial and time are kept; you can still finish and post an Apprentice score.</span></p>
+    <div class="cbtns">
+      <div class="mbtn" id="leaveStay">STAY</div>
+      <div class="mbtn amber" id="leaveGo">LEAVE</div>
+    </div>
+  </div>
+</div>
+<!-- post-score overlay -->
+<div class="ov" id="postOv">
+  <div class="card">
+    <h3 id="postTitle">&#9733; CRACKED</h3>
+    <p id="postBody">Post your time to the leaderboard?</p>
+    <div class="cbtns">
+      <div class="mbtn" id="postSkip">SKIP</div>
+      <div class="mbtn amber" id="postGo">POST</div>
+    </div>
+    <div class="sub" id="postMsg" style="margin-top:12px;"></div>
+  </div>
+</div>
+<!-- save/name overlay -->
+<div class="ov" id="nameOv">
+  <div class="card">
+    <h3 id="nameTitle">NAME YOUR SAVE</h3>
+    <input id="nameInput" maxlength="40" placeholder="my dial">
+    <div class="cbtns">
+      <div class="mbtn" id="nameCancel">CANCEL</div>
+      <div class="mbtn amber" id="nameOk">SAVE</div>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="saveOv">
+  <div class="card">
+    <h3>YOUR SAVE CODE</h3>
+    <textarea id="saveText" class="codearea" rows="5" readonly></textarea>
+    <div class="sub" id="saveMsg">copy this and keep it somewhere safe — paste it into LOAD to restore</div>
+    <div class="cbtns">
+      <div class="mbtn" id="saveClose">CLOSE</div>
+      <div class="mbtn amber" id="saveCopy">COPY</div>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="loadOv">
+  <div class="card">
+    <h3>PASTE A SAVE CODE</h3>
+    <textarea id="loadText" class="codearea" rows="5" placeholder="paste your save code here"></textarea>
+    <div class="sub" id="loadMsg"></div>
+    <div class="cbtns">
+      <div class="mbtn" id="loadClose">CANCEL</div>
+      <div class="mbtn amber" id="loadGo">LOAD</div>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="catOv">
+  <div class="catcard">
+    <img src="dial-plate.jpg" alt="">
+    <button class="catclose" id="catClose" aria-label="close">&times;</button>
+  </div>
+</div>
+
+<div class="ov" id="plateOv">
+  <div class="catcard" style="position:relative;">
+    <button class="catclose" id="plateClose" aria-label="close" style="position:absolute;top:8px;right:8px;z-index:3;">&times;</button>
+    <div id="plateStage" style="position:relative;width:100%;height:76vh;">
+      <img id="plateImg1" src="dial-grain.png"  alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:1;transition:opacity .9s ease;">
+      <img id="plateImg2" src="dial-sheen.png"  alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .9s ease;">
+      <img id="plateImg3" src="dial-patina.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .9s ease;">
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="comboOv">
+  <div class="card">
+    <h3>SET COMBINATION</h3>
+    <div class="sub" style="margin-bottom:12px;">three numbers, 0&ndash;99 &middot; dialed 1st &rarr; 2nd &rarr; 3rd</div>
+    <div class="combo-inputs">
+      <div class="combo-spin" data-i="0">
+        <div class="combo-arrow" data-d="1">&#9650;</div>
+        <div id="cmb0" class="combo-num">00</div>
+        <div class="combo-arrow" data-d="-1">&#9660;</div>
+      </div>
+      <span class="combo-dash">&ndash;</span>
+      <div class="combo-spin" data-i="1">
+        <div class="combo-arrow" data-d="1">&#9650;</div>
+        <div id="cmb1" class="combo-num">00</div>
+        <div class="combo-arrow" data-d="-1">&#9660;</div>
+      </div>
+      <span class="combo-dash">&ndash;</span>
+      <div class="combo-spin" data-i="2">
+        <div class="combo-arrow" data-d="1">&#9650;</div>
+        <div id="cmb2" class="combo-num">00</div>
+        <div class="combo-arrow" data-d="-1">&#9660;</div>
+      </div>
+    </div>
+    <div id="comboMsgs" class="combo-msgs"></div>
+    <div class="cbtns">
+      <div class="mbtn" id="comboClose">CANCEL</div>
+      <div class="mbtn amber" id="comboSet">SET</div>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="certViewOv">
+  <div class="card" style="max-width:440px;">
+    <div id="certViewHolder"></div>
+    <div class="cbtns" style="margin-top:14px;">
+      <div class="mbtn" id="certViewClose">CLOSE</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
+<script>
+"use strict";
+(function(){
+/* ===========================================================================
+   THE DIAL — Group 2 (3-wheel) manipulation, real mechanism.
+   Corrected coupling: pickup slack governs only WHEN a wheel is carried; a
+   carried wheel rests at the driver's position, so all-wheels-left to N puts
+   every wheel on N. Eccentric wheels + floating gates ~2.5 wide; contact gap
+   set by the tallest off-gate wheel; all three sated -> drop -> right to 95.
+   =========================================================================== */
+const cv=document.getElementById('c'), ctx=cv.getContext('2d');
+const W=cv.width, H=cv.height;
+
+const T = {
+  baseSpeed:78, slowMul:0.05, normalMul:0.25, fastMul:1.0,
+  PLAY:99.5,             // pickup deadband (~one turn) — carried wheel rests at driver pos
+  GATE_HALF:1.25,        // gate half-width -> ~2.5 numbers wide
+  OPEN_TOL:1.4,
+  LEVEL:[0.34,0.18,0.0],    // contact-height baseline by binding rank (loading+size bias; proudest reads first). spread kept from prior tuning so reading-order feel is preserved; the gate is now a separate notch
+  SPAN_BASE:10, CONTACT_C:10,
+  ECC_AMP:0.15,             // oval amplitude seed (two highs / two lows per turn, varied per wheel) -> ~0.3 read ripple, faint texture under the gate
+  // true-gate notch: a flat-bottomed dip cut into each wheel's height profile AT the combo number, at an
+  // arbitrary spot around the oval. THIS, not the oval low, is what the read seeks. Deep enough to always hand
+  // the fence past the next wheel, so read depth = the gap down to whatever holds the fence next (emergent shadowing).
+  GATE_DEPTH:0.7,           // full notch depth (height units) at the gate floor
+  GATE_FLOOR:0.75,          // |gd|<=this reads full depth (flat bottom ~1.5 wide; matches bench 17-18.5 @ gate 18)
+  GATE_EDGE:1.25,           // |gd|>=this is baseline; ramp between floor and edge (first movement ~1.25 off; matches bench)
+  FENCE_TOP:0.55,           // reference full height (tallest wheel at its high); read droop measured down from here
+  HOOK_FRAC:0.4,            // how much the muted left (hook) edge moves vs the right (slope) measuring edge
+  retract:95, contactLo:5, contactHi:15, relockShift:6,
+  dropReset:2,            // numbers past the drop point (toward hunting) that throws the pack off
+  retractDrag:0.28,       // held-turn: loaded-bolt resistance (flat, heavy, still turnable)
+  retractGrip:0.38,       // finger-drag: dial moves this fraction of finger travel while retracting (heavier than loaded)
+  weightPerWheel:0.155, pickupKick:0.14, pickupGrip:0.38, readSlow:0.34,
+  // contact-edge "wall": the nose catching lightly on the slope/hook edge as you feel for a contact point.
+  // Subtle, speed-dependent — a slow light brush drags against it, a firmer turn rides over (and mis-reads).
+  WALL_WIN:1.7,          // how near an edge (in numbers) the wall is felt
+  WALL_FADE:0.35,        // speed falloff scale: higher washes out sooner. Wall is ALWAYS on - speed only masks the feel
+  WALL_STALL:0.09,       // stall floor: at/below this dial speed the edge fully freezes (slowest button ~0.065) - above it the gradient releases
+  WALL_GRAB:1.0,         // at the slow end of the gradient this fully blocks the edge - you must add speed to leave the contact area
+  WALL_SLOPE:1.0,        // both contact edges equal - left and right behave identically
+  // heavy-gravity gate capture (felt only at slow speed): pull toward the contact centre when solved
+  GRAV_WIN:5,            // half-width of the capture well around CONTACT_C
+  GRAV_PULL:0.03,        // base pull fraction toward centre at near-zero speed (lowered again, was 0.05)
+  GRAV_FADE:4.2,         // how quickly the pull fades as dial speed rises (higher = fades sooner)
+  GRAV_IDLE:0.02,        // gentle settle-to-centre ease when you stop within the well
+  GRAV_SLOWCUE:0.32,     // speed below which the faint "heaviness" haptic cue fires
+  ARM_AT:0.6,            // arm the lever once the dial settles within this of CONTACT_C (no need to cross past)
+};
+const DRAG_RATIO=[1.0,0.68,0.48,0.33];
+const LEFT=1, RIGHT=-1;
+
+/* ---- active dial (the live mechanism) ---- */
+let combo=[0,0,0], wheels=[], gateAbs=[0,0,0], sizeRank=[0,1,2];
+let resolveSeq=[0,0,0], resolveCtr=0;   // reading-order display: when each wheel reached its true gate, so resolved (green) wheels hold a stable spot
+let eccPhase=[0,0,0], eccAmp=[0,0,0], gateGain=1;
+let pos=0, acc=0, accPrev=0;
+let engaged=0, engagedPrev=0;
+let opened=false, openAnchorAcc=0, armed=false;
+
+/* ---- ui / feedback state ---- */
+let speedVal=0, zoom=false, debug=false;
+let held={L:false,R:false,up:false,down:false};
+let contact=null, edgeCatch=0, contactCool=0, kickT=0, pipFlash=[0,0,0];
+let blipT=0, gravBuzzCool=0;
+
+/* ---- app state ---- */
+let mode='practice';            // 'practice' | 'challenge'
+let settings={haptic:true, visual:true};
+let practiceData=null, challengeData=null;
+let challengeMeta={started:false, elapsedMs:0, running:false, lastResume:0, solved:false, solvedTimeMs:0, solvedDate:0, eligible:'master', solvedTier:'apprentice'};
+let vaultUnlocked=false;
+let vaultDoorHandled=false, vaultPlateMode=false, doorWantOpen=false;
+let curScreen='menu', navStack=[], suppressHist=false;
+
+const statusEl=document.getElementById('status');
+const mod=(x,m)=>((x%m)+m)%m;
+const circDist=(a,b)=>{const d=Math.abs(mod(a,100)-mod(b,100));return Math.min(d,100-d);};
+function crossed(aP,aC,t){const f=x=>Math.floor((x-t)/100);return f(aP)!==f(aC);}
+let statusTimer=null;
+function setStatus(t,c,holdMs){
+  if(statusTimer){clearTimeout(statusTimer);statusTimer=null;}
+  statusEl.textContent=t;statusEl.style.color=c||'var(--teal)';
+  if(holdMs){statusTimer=setTimeout(function(){statusEl.textContent='';statusTimer=null;},holdMs);}
+}
+function setStatusHTML(h,c,holdMs){
+  if(statusTimer){clearTimeout(statusTimer);statusTimer=null;}
+  statusEl.innerHTML=h;statusEl.style.color=c||'var(--teal)';
+  if(holdMs){statusTimer=setTimeout(function(){statusEl.textContent='';statusTimer=null;},holdMs);}
+}
+function tierTag(tier){ return '<span class="'+(tier==='master'?'elig-master':'elig-appr')+'">'+(tier==='master'?'MASTER':'APPRENTICE')+'</span>'; }
+function randInt(a,b){return a+Math.floor(Math.random()*(b-a+1));}
+function buzz(p){ if(settings.haptic && navigator.vibrate) navigator.vibrate(p); }
+
+/* ===========================================================================
+   MECHANISM
+   =========================================================================== */
+function makeCombo(){
+  let n3,n2,n1,t=0;
+  do{ n3=randInt(26,99); n2=randInt(0,99); n1=randInt(0,99); t++; }
+  while((circDist(n1,n2)<=5||circDist(n2,n3)<=5)&&t<2000);
+  return [n1,n2,n3];
+}
+function driveOn(pack,camPos){
+  // each wheel carried by its driver (cam->w0->w1->w2); a carried wheel rests AT the driver.
+  let D=camPos, carried=0;
+  for(let i=0;i<pack.length;i++){
+    const w=pack[i]; const slack=w.pos-D; let moved=false;
+    if(slack<0){ w.pos=D; moved=true; }                 // forward carry: wheel sits on driver
+    else if(slack>T.PLAY){ w.pos=D+T.PLAY; moved=true; } // reverse carry (~pin width behind)
+    if(moved) carried++; D=w.pos;
+    if(!moved) break;
+  }
+  return carried;
+}
+function driveWheels(camPos){ engaged=driveOn(wheels,camPos); }
+
+function calibrateGates(){
+  const pk=wheels.map(w=>({pos:w.pos}));
+  let a=acc;
+  const step=(dir,target,minRevs)=>{
+    const start=a, need=minRevs*100; let g=0;
+    while(g++<300000){ a+=dir*0.5; driveOn(pk,a); if(Math.abs(a-start)>=need && circDist(mod(a,100),target)<0.25) break; }
+  };
+  step(LEFT,combo[0],4); step(RIGHT,combo[1],2); step(LEFT,combo[2],1);
+  gateAbs=pk.map(w=>mod(w.pos,100));
+}
+function newDial(forceCombo){
+  combo=(forceCombo&&forceCombo.length===3)?forceCombo.slice():makeCombo();
+  pos=randInt(0,99); acc=pos; accPrev=pos;
+  wheels=[0,1,2].map(()=>({pos:acc+Math.random()*T.PLAY}));
+  // fence spring-bias: the 3rd-number wheel (internal w0) binds first most of the time
+  sizeRank=[0,1,2];
+  const rb=Math.random();
+  if(rb<0.12){ const t=sizeRank[0];sizeRank[0]=sizeRank[1];sizeRank[1]=t; }
+  else if(rb<0.22){ const t=sizeRank[1];sizeRank[1]=sizeRank[2];sizeRank[2]=t; }
+  eccPhase=[0,1,2].map(()=>Math.random()*Math.PI*2);
+  eccAmp=[0,1,2].map(()=>T.ECC_AMP*(0.7+Math.random()*0.6));
+  gateGain=0.8+Math.random()*0.55;   // per-lock readability: some dials read clearer than others
+  calibrateGates();
+  opened=false; engaged=0; engagedPrev=0; kickT=0;
+}
+function dialToData(){
+  return {combo:combo.slice(), gateAbs:gateAbs.slice(), sizeRank:sizeRank.slice(),
+    eccPhase:eccPhase.slice(), eccAmp:eccAmp.slice(), gateGain:gateGain, acc:acc,
+    wheels:wheels.map(w=>w.pos), opened:opened, openAnchorAcc:openAnchorAcc};
+}
+function dataToDial(d){
+  combo=d.combo.slice(); gateAbs=d.gateAbs.slice(); sizeRank=d.sizeRank.slice();
+  eccPhase=d.eccPhase.slice(); eccAmp=d.eccAmp.slice(); gateGain=(typeof d.gateGain==='number')?d.gateGain:1;
+  acc=d.acc; accPrev=d.acc; pos=mod(acc,100);
+  wheels=d.wheels.map(p=>({pos:p}));
+  opened=!!d.opened; openAnchorAcc=d.openAnchorAcc||0; armed=false;
+  engaged=0; engagedPrev=0; kickT=0; contact=null;
+}
+
+function gateDelta(i){ return circDist(mod(wheels[i].pos,100), gateAbs[i]); }
+function wheelOnGate(i){ return gateDelta(i)<T.OPEN_TOL; }
+function wheelHeight(i){
+  // a wheel's contact height at the current dial position: a loading/size baseline by binding rank
+  // (the proudest wheel reads first) plus a true-oval profile with two highs and two lows per turn.
+  const base=T.LEVEL[sizeRank[i]];
+  const oval=eccAmp[i]*Math.sin(4*Math.PI*mod(wheels[i].pos,100)/100 + eccPhase[i]);
+  const gd=gateDelta(i);    // flat-bottomed gate notch: full depth across the floor, ramps out to baseline at the edge
+  const notch = gd>=T.GATE_EDGE ? 0 : (gd<=T.GATE_FLOOR ? 1 : (T.GATE_EDGE-gd)/(T.GATE_EDGE-T.GATE_FLOOR));
+  return base + oval - T.GATE_DEPTH*notch;
+}
+function computeContact(){
+  // merged (single centre point) shows exactly when the lock is aligned enough to open —
+  // same check as the open logic, so the display can never disagree with whether it opens
+  if(allGatesAligned()) return {allGate:false, merged:true, left:T.CONTACT_C, right:T.CONTACT_C, span:0, dom:-1};
+  // The fence rests on the tallest wheel still holding it up. A wheel sitting on its gate drops out of
+  // the pool (its deep notch lets the fence pass), handing the fence down to the next-tallest wheel. So
+  // the read tracks that fence height: gating the tallest wheel drops the read to the next one, a shorter
+  // wheel hidden under a taller one shows nothing (shadowing / forced reading order), and each gate you
+  // stack removes a holder and drops the floor further. The depth of any read is the gap down to whatever
+  // the remaining wheels hold the fence at — a low neighbour reads deep, a proud neighbour masks it.
+  let fence=-99, dom=-1;
+  for(let i=0;i<3;i++){
+    const h=wheelHeight(i);               // gate is baked into the height profile now (notch), no binary drop-out
+    if(h>fence){ fence=h; dom=i; }
+  }
+  if(dom<0) return {allGate:false, merged:true, left:T.CONTACT_C, right:T.CONTACT_C, span:0, dom:-1};
+  let droop=(T.FENCE_TOP-fence)*gateGain;   // how far the fence has fallen from full height (gateGain = per-lock clarity)
+  if(droop<0) droop=0;
+  const slope=T.CONTACT_C+T.SPAN_BASE/2 - droop;            // right: sensitive measuring edge (the one you read)
+  const hook =T.CONTACT_C-T.SPAN_BASE/2 + droop*T.HOOK_FRAC; // left: muted reference edge
+  return {allGate:false, merged:false, left:hook, right:slope, span:slope-hook, dom};
+}
+
+/* ===========================================================================
+   MOTION / OPEN / RELOCK
+   =========================================================================== */
+function allGatesAligned(){ return gateDelta(0)<T.OPEN_TOL && gateDelta(1)<T.OPEN_TOL && gateDelta(2)<T.OPEN_TOL; }
+function contactSignedDist(a){
+  // signed circular distance from the dial position to the contact centre (-50..50]; >0 = above centre
+  let p=mod(a,100), d=p-T.CONTACT_C;
+  if(d>50) d-=100; else if(d<-50) d+=100;
+  return d;
+}
+function gravitySettle(dt){
+  // when solved and you come to rest near the contact centre, ease the dial into it (the "drop")
+  if(opened||armed||!allGatesAligned()) return;
+  const d=contactSignedDist(acc);
+  if(Math.abs(d)>T.GRAV_WIN || Math.abs(d)<=0.08) return;
+  let step=-d*T.GRAV_IDLE*(dt*60);
+  if(Math.abs(step)>Math.abs(d)) step=-d;
+  applyMotion(step,false);
+}
+function update(dt){
+  if(kickT>0)kickT-=dt; if(edgeCatch>0)edgeCatch-=dt; if(contactCool>0)contactCool-=dt; if(blipT>0)blipT-=dt;
+  if(gravBuzzCool>0)gravBuzzCool-=dt;
+  for(let i=0;i<3;i++) if(pipFlash[i]>0) pipFlash[i]-=dt;
+  contact=(engaged===0)?computeContact():null;
+  for(let i=0;i<3;i++){ if(wheelOnGate(i)){ if(!resolveSeq[i]) resolveSeq[i]=++resolveCtr; } else resolveSeq[i]=0; }
+  if(dragging) return;
+  let dir = held.L && !held.R ? LEFT : held.R && !held.L ? RIGHT : 0;
+  let vel=0;
+  if(dir!==0){
+    vel=dir*T.baseSpeed*curMult();
+    vel*=(1-T.weightPerWheel*engagedPrev);
+    if(kickT>0) vel*=(0.42+0.58*(1-kickT/T.pickupKick));
+    if(edgeCatch>0) vel*=0.35;
+    if(armed||opened) vel*=T.retractDrag;   // loaded bolt — heavier wheel
+  }
+  if(vel!==0){ applyMotion(vel*dt,false); }
+  else { gravitySettle(dt); }   // idle: ease into the contact well if solved & nearby
+}
+function applyMotion(dpos,isFinger){
+  if(opened && dpos<0 && acc+dpos<openAnchorAcc){ dpos=openAnchorAcc-acc; } // hard stop at 95
+  if(dpos===0) return;
+  if(mode==='challenge' && challengeMeta.awaitingFirstMove && !challengeMeta.solved){
+    challengeMeta.awaitingFirstMove=false; startTimer();
+  }
+  // contact-edge wall: leaving the contact area, the nose catches on the contact point and you climb out
+  // past it. The catch starts EXACTLY at the contact number (never before it), so the read stays accurate.
+  // At/below the stall speed it's a full stop; above it the resistance fades smoothly with speed.
+  if(!opened && !armed && engaged===0){
+    const spd=Math.abs(dpos);
+    const c=computeContact();
+    if(c && !c.allGate && !c.merged){
+      // which way is "out": off>0 = right of the area centre (right point), off<0 = left
+      let off=pos-(c.left+c.right)/2; if(off>50) off-=100; if(off<-50) off+=100;
+      const leaving = off>=0 ? dpos>0 : dpos<0;
+      if(leaving){
+        // distance PAST the contact point in the leaving direction: <0 = still inside (NO drag, so the
+        // catch begins right at the contact number), 0..WALL_WIN = climbing out past it
+        let pastEdge = off>=0 ? pos-c.right : c.left-pos;
+        if(pastEdge>50) pastEdge-=100; else if(pastEdge<-50) pastEdge+=100;
+        if(pastEdge>=0 && pastEdge<T.WALL_WIN){
+          const grab=T.WALL_GRAB*(off>=0?T.WALL_SLOPE:1);
+          const over=Math.max(0,spd-T.WALL_STALL);                 // stall floor: at/below WALL_STALL the edge fully freezes
+          const speedFade=1/(1+over*over*T.WALL_FADE);             // above the floor the resistance fades smoothly with speed
+          const nearFade=1-pastEdge/T.WALL_WIN;                    // strongest right at the contact point, easing as you climb out
+          dpos*=(1-grab*speedFade*nearFade);
+        }
+      }
+    }
+  }
+  if(dpos===0) return;
+  accPrev=acc; acc+=dpos; pos=mod(acc,100);
+  driveWheels(acc);
+  if(engaged>engagedPrev){ kickT=T.pickupKick; pipFlash[engaged-1]=0.5; buzz(18); }
+  const dir = dpos>0?LEFT:RIGHT;
+
+  const allGate=gateDelta(0)<T.OPEN_TOL && gateDelta(1)<T.OPEN_TOL && gateDelta(2)<T.OPEN_TOL;
+
+  // contact edges felt only on a bare cam, away from the merged (solved) state, gently
+  if(!opened && !armed && !allGate && engaged===0 && contactCool<=0){
+    const c=computeContact();
+    if(c && !c.allGate && !c.merged){
+      const slow=isFinger||curMult()<=T.readSlow;
+      const exitBottom=dir===RIGHT && crossed(accPrev,acc,c.left);
+      const exitTop   =dir===LEFT  && crossed(accPrev,acc,c.right);
+      if(slow && (exitBottom||exitTop)){
+        edgeCatch=0.12; contactCool=0.13;
+        buzz(16); if(settings.visual) blipT=0.32;
+      }
+    }
+  }
+
+  if(opened){
+    // bring the pack back up through the drop point to re-lock
+    if(dir===LEFT && crossed(accPrev,acc,T.CONTACT_C)) relock();
+  } else if(allGate){
+    // the spring keeps pulling the lever down into the aligned gates — this pull persists the whole
+    // time the gates stay lined up, armed or not. Strong when slow, negligible when fast. The contact
+    // area is sloped, so leaving it means climbing the ramp against this pull (felt as resistance).
+    const dC=contactSignedDist(acc);
+    if(Math.abs(dC)<=T.GRAV_WIN){
+      const spd=Math.abs(dpos);
+      const grav=T.GRAV_PULL/(1+spd*T.GRAV_FADE);
+      let pull=-dC*grav; if(Math.abs(pull)>Math.abs(dC)) pull=-dC;
+      // the retract (hook) side has no ramp: once past centre toward the bolt-pull direction the lever
+      // rides the hook freely, so don't resist that direction. dC<0 is the hook side; dpos<0 (RIGHT)
+      // is moving further into it. The fall-in (both sides) and the escape ramp (dC>0) still pull.
+      if(dC<0 && dpos<0) pull=0;
+      if(pull!==0){ acc+=pull; pos=mod(acc,100); driveWheels(acc); }
+    }
+    if(!armed){
+      // the lever seats the instant the dial reaches the contact centre (settled or crossed through),
+      // so reversing out from here resets the pack — but the spring pull above stays in effect
+      if(crossed(accPrev,acc,T.CONTACT_C) || Math.abs(contactSignedDist(acc))<T.ARM_AT){
+        armed=true; kickT=T.pickupKick;
+        buzz(30); if(settings.visual) blipT=0.4;
+        setStatus('\u25cf lever dropped at '+T.CONTACT_C+' \u2014 turn toward '+T.retract+' to pull the bolt','var(--amber)');
+      }
+    } else {
+      if(dir===RIGHT && crossed(accPrev,acc,T.retract)){
+        // pulled the bolt all the way to the hard stop at 95
+        const B=Math.floor((accPrev-T.retract)/100)*100+T.retract;
+        acc=B; pos=T.retract; driveWheels(acc);
+        openAnchorAcc=B; opened=true; armed=false;
+        onOpened();
+      } else if(dir===LEFT && crossed(accPrev,acc,T.CONTACT_C+T.dropReset)){
+        // turned back up past the drop instead of pulling the bolt — throws the pack off
+        relock();
+      }
+    }
+  } else {
+    armed=false;
+  }
+  engagedPrev=engaged;
+  renderPractice();
+}
+function relock(){
+  opened=false; armed=false;
+  wheels.forEach(w=>w.pos+=T.relockShift); // pack slides a few increments off the fence, still mutually aligned
+  engaged=0; engagedPrev=0;
+  setStatus('re-locked — pack shifted off the fence; dial again from the start','var(--red)',5000);
+  renderPractice();
+}
+function onOpened(){
+  if(mode==='challenge' && !challengeMeta.solved){
+    pauseTimer();
+    challengeMeta.solved=true;
+    challengeMeta.solvedTimeMs=challengeMeta.elapsedMs;
+    challengeMeta.solvedTier=challengeMeta.eligible;
+    challengeMeta.solvedDate=Date.now();
+    vaultUnlocked=true;
+    if(window.svcMode==='cat') vaultPlateMode=true;
+    autosave();
+    if(typeof updateComboReveal==='function') updateComboReveal();
+    const tn=challengeMeta.solvedTier==='master'?'MASTER':'APPRENTICE';
+    if(window.svcMode==='cat'){
+      setStatus('\u2605 solved \u2014 go to the main menu and open the vault','var(--amber)');
+    } else if(challengeMeta.unranked){
+      setStatus('\u2605 solved in '+fmtTime(challengeMeta.solvedTimeMs)+' (unranked) \u2014 open the vault from the menu','var(--amber)');
+    } else {
+      setStatusHTML('\u2605 cracked in '+fmtTime(challengeMeta.solvedTimeMs)+' \u00b7 '+tierTag(challengeMeta.solvedTier)+' \u2014 open the vault from the menu to post it (within 12 hours)','var(--amber)');
+    }
+  } else {
+    setStatus('\u2605 OPEN — bolt retracted at 95. turn LEFT to re-lock','var(--amber)');
+  }
+}
+
+/* ===========================================================================
+   INPUT
+   =========================================================================== */
+function norm(k){k=k.toLowerCase();
+  if(k==='a'||k==='arrowleft')return'L'; if(k==='d'||k==='arrowright')return'R';
+  if(k==='w'||k==='arrowup')return'up'; if(k==='s'||k==='arrowdown')return'down'; return k;}
+addEventListener('keydown',e=>{if(curScreen!=='game')return;const k=norm(e.key);
+  if(['L','R','up','down'].includes(k)){e.preventDefault();held[k]=true;}});
+addEventListener('keyup',e=>{const k=norm(e.key);
+  if(['L','R','up','down'].includes(k)){e.preventDefault();held[k]=false;}});
+// ---- global scroll-intent tracker: did this touch become a drag? ----
+let _moved=false,_mx=0,_my=0;
+document.addEventListener('touchstart',e=>{ if(e.touches[0]){_moved=false;_mx=e.touches[0].clientX;_my=e.touches[0].clientY;} },{passive:true});
+document.addEventListener('touchmove',e=>{ if(e.touches[0]&&(Math.abs(e.touches[0].clientX-_mx)>8||Math.abs(e.touches[0].clientY-_my)>8))_moved=true; },{passive:true});
+// tap(): fires on a clean tap-release. Browsers suppress the click after a scroll, so swipes never trigger it.
+function tap(el,fn){ if(!el)return; el.addEventListener('click',e=>{ if(_moved)return; e.preventDefault(); fn(e); }); }
+
+// turn buttons: hold to spin. Engage after a tiny 35ms intent buffer, and cancel the instant the finger
+// slides past 6px (that's a scroll, not a press) — kills the swipe-nudge without adding any felt lag.
+document.querySelectorAll('[data-turn]').forEach(b=>{
+  const k=b.getAttribute('data-turn');
+  let armed=false,eng=false,sx=0,sy=0,timer=null;
+  const engage=()=>{ eng=true; held[k]=true; b.classList.add('on'); };
+  const clear=()=>{ armed=false; if(timer){clearTimeout(timer);timer=null;}
+    if(eng){eng=false;held[k]=false;b.classList.remove('on');} };
+  b.addEventListener('pointerdown',e=>{ e.preventDefault(); armed=true; eng=false; sx=e.clientX; sy=e.clientY;
+    timer=setTimeout(()=>{ timer=null; if(armed) engage(); }, 35); });
+  b.addEventListener('pointermove',e=>{ if(armed && (Math.abs(e.clientX-sx)>6||Math.abs(e.clientY-sy)>6)) clear(); });
+  b.addEventListener('pointerup',clear);
+  b.addEventListener('pointercancel',clear);
+  b.addEventListener('pointerleave',clear);
+});
+// speed / zoom / debug / reset — tap-only (won't fire mid-scroll)
+(function(){
+  var sl=document.getElementById('spdSlider');
+  if(sl){ var apply=function(){ speedVal=Math.max(0,Math.min(1,(+sl.value)/100)); };
+    sl.addEventListener('input',apply); apply(); }
+})();
+tap(document.getElementById('zoomBtn'),()=>{ zoom=!zoom;
+  document.getElementById('zoomBtn').classList.toggle('on',zoom); });
+tap(document.getElementById('debugBtn'),()=>{ if(mode==='challenge')return;
+  debug=!debug; document.getElementById('practice').classList.toggle('show',debug);
+  document.getElementById('debugBtn').classList.toggle('on',debug); renderPractice(); });
+tap(document.getElementById('resetBtn'),()=>{ askReset(); });
+// disable pinch-zoom (iOS Safari ignores the viewport "no zoom" setting, so we cancel the gesture)
+['gesturestart','gesturechange','gestureend'].forEach(ev=>
+  document.addEventListener(ev,e=>e.preventDefault(),{passive:false}));
+document.addEventListener('touchmove',e=>{ if(e.touches&&e.touches.length>1)e.preventDefault(); },{passive:false});
+// leaving mid-challenge (screen off, tab switch, app backgrounded) forfeits Master eligibility
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden && challengeMeta && challengeMeta.started && !challengeMeta.solved && challengeMeta.eligible==='master'){
+    challengeMeta.eligible='apprentice'; autosave(); updateEligibility();
+  }
+});
+
+function curMult(){
+  // slider 0..1 mapped exponentially: 0 -> slowMul, ~0.5 -> ~normalMul, 1 -> fastMul
+  return T.slowMul*Math.pow(T.fastMul/T.slowMul, speedVal);
+}
+function geom(){ return zoom ? {cx:W/2, cy:560, R:380} : {cx:W/2, cy:188, R:150}; }
+
+let dragging=false, lastAng=0;
+function dialPoint(e){
+  const g=geom(), r=cv.getBoundingClientRect();
+  const px=(e.clientX-r.left)*(cv.width/r.width), py=(e.clientY-r.top)*(cv.height/r.height);
+  return {ang:Math.atan2(py-g.cy,px-g.cx), dist:Math.hypot(px-g.cx,py-g.cy)};
+}
+cv.addEventListener('pointerdown',e=>{const g=geom(),p=dialPoint(e);
+  if(p.dist>g.R+24)return; dragging=true; lastAng=p.ang;
+  try{cv.setPointerCapture(e.pointerId);}catch(_){ } e.preventDefault();});
+cv.addEventListener('pointermove',e=>{if(!dragging)return;const g=geom(),p=dialPoint(e);
+  // ignore the inner part of the dial: atan2 is unstable near the centre, so a finger dragged
+  // toward (or across) the middle spins erratically. Keep angle synced so leaving the zone doesn't jump.
+  if(p.dist<g.R*0.42){ lastAng=p.ang; e.preventDefault(); return; }
+  let d=p.ang-lastAng; while(d>Math.PI)d-=2*Math.PI; while(d<-Math.PI)d+=2*Math.PI; lastAng=p.ang;
+  const kf=(kickT>0)?(T.pickupGrip+(1-T.pickupGrip)*(1-kickT/T.pickupKick)):1;
+  applyMotion(-(d/(2*Math.PI)*100)*DRAG_RATIO[Math.min(3,engagedPrev)]*kf*((armed||opened)?T.retractGrip:1), true); e.preventDefault();});
+function endDrag(e){if(dragging){dragging=false;try{cv.releasePointerCapture(e.pointerId);}catch(_){ }}}
+cv.addEventListener('pointerup',endDrag); cv.addEventListener('pointercancel',endDrag);
+cv.addEventListener('contextmenu',e=>e.preventDefault());
+
+/* ===========================================================================
+   RENDER (dial)
+   =========================================================================== */
+function draw(){
+  ctx.clearRect(0,0,W,H); ctx.fillStyle='#06070a'; ctx.fillRect(0,0,W,H);
+  const g=geom(), CX=g.cx, CY=g.cy, R=g.R, ringAng=-(pos/100)*Math.PI*2;
+  ctx.save(); ctx.beginPath(); ctx.rect(0,0,W, zoom?420:H); ctx.clip();
+  ctx.save(); ctx.translate(CX,CY);
+
+  ctx.beginPath();ctx.arc(0,0,R+12,0,7);ctx.fillStyle='#15181c';ctx.fill();
+  let bev=ctx.createLinearGradient(0,-R-12,0,R+12);
+  bev.addColorStop(0,'#6b727a');bev.addColorStop(.5,'#2b2f34');bev.addColorStop(1,'#070809');
+  ctx.lineWidth=6;ctx.strokeStyle=bev;ctx.beginPath();ctx.arc(0,0,R+9,0,7);ctx.stroke();
+
+  let face=ctx.createRadialGradient(-40,-50,20,0,0,R+4);
+  face.addColorStop(0,'#f6f8fa');face.addColorStop(.4,'#d6dce1');face.addColorStop(.72,'#aab2bb');face.addColorStop(1,'#7c848d');
+  ctx.beginPath();ctx.arc(0,0,R,0,7);ctx.fillStyle=face;ctx.fill();
+  ctx.save();ctx.beginPath();ctx.arc(0,0,R,0,7);ctx.clip();
+  for(let rr=R;rr>R*0.36;rr-=3){ctx.beginPath();ctx.arc(0,0,rr,0,7);
+    ctx.strokeStyle='rgba(255,255,255,'+(0.022+0.018*Math.sin(rr))+')';ctx.lineWidth=1;ctx.stroke();}
+  ctx.restore();
+  ctx.lineWidth=1.5;ctx.strokeStyle='#5f666e';ctx.beginPath();ctx.arc(0,0,R,0,7);ctx.stroke();
+
+  ctx.save();ctx.rotate(ringAng);const numFont=Math.round(R*0.115);
+  for(let n=0;n<100;n++){
+    const a=(n/100)*Math.PI*2-Math.PI/2;
+    const isTen=(n%10===0), isFive=(n%5===0);
+    const r1=R-R*0.03, r2=R-(isTen?R*0.14:isFive?R*0.105:R*0.06);
+    ctx.strokeStyle=isTen?'rgba(18,20,24,.95)':isFive?'rgba(18,20,24,.80)':'rgba(18,20,24,.42)';
+    ctx.lineWidth=isTen?2.4:isFive?1.8:1;
+    ctx.beginPath();ctx.moveTo(Math.cos(a)*r1,Math.sin(a)*r1);ctx.lineTo(Math.cos(a)*r2,Math.sin(a)*r2);ctx.stroke();
+    if(isTen){ctx.save();ctx.translate(Math.cos(a)*(R-R*0.25),Math.sin(a)*(R-R*0.25));ctx.rotate(a+Math.PI/2);
+      ctx.fillStyle='#14161a';ctx.font='bold '+numFont+'px ui-monospace,monospace';
+      ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(n,0,0);ctx.restore();}
+  }
+  ctx.restore();
+
+  ctx.save();ctx.rotate(ringAng);const kR=R*0.33;
+  let knob=ctx.createRadialGradient(-12,-16,6,0,0,kR);
+  knob.addColorStop(0,'#4a515a');knob.addColorStop(.6,'#2a2f35');knob.addColorStop(1,'#15181c');
+  ctx.beginPath();ctx.arc(0,0,kR,0,7);ctx.fillStyle=knob;ctx.fill();
+  for(let i=0;i<48;i++){const a=(i/48)*Math.PI*2;
+    ctx.strokeStyle=i%2?'rgba(120,128,138,.55)':'rgba(8,9,11,.6)';ctx.lineWidth=1.4;
+    ctx.beginPath();ctx.moveTo(Math.cos(a)*(kR-1),Math.sin(a)*(kR-1));ctx.lineTo(Math.cos(a)*(kR-9),Math.sin(a)*(kR-9));ctx.stroke();}
+  ctx.fillStyle='#11141a';ctx.beginPath();ctx.arc(0,0,kR*0.32,0,7);ctx.fill();
+  ctx.strokeStyle='#5b636c';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,-kR*0.3);ctx.stroke();
+  ctx.restore();
+
+  if(debug && contact && !contact.allGate){
+    if(contact.merged){
+      const sa=((T.CONTACT_C/100)*Math.PI*2)-Math.PI/2+ringAng;
+      ctx.fillStyle=armed?'#4cc6c0':'#e8a33d';
+      ctx.beginPath();ctx.arc(Math.cos(sa)*(R+4),Math.sin(sa)*(R+4),zoom?8.5:6,0,7);ctx.fill();
+    } else {
+      for(const [val,kind] of [[contact.left,'hook'],[contact.right,'slope']]){
+        const sa=((val/100)*Math.PI*2)-Math.PI/2+ringAng;
+        ctx.fillStyle=kind==='slope'?'#d6324a':'#4cc6c0';
+        ctx.beginPath();ctx.arc(Math.cos(sa)*(R+4),Math.sin(sa)*(R+4),zoom?7:4.5,0,7);ctx.fill();
+      }
+    }
+  }
+  ctx.restore(); ctx.restore();
+
+  // index pointer
+  ctx.fillStyle=opened?'#4cc6c0':'#d6324a';
+  ctx.beginPath();ctx.moveTo(CX,CY-R-1);ctx.lineTo(CX-8,CY-R-16);ctx.lineTo(CX+8,CY-R-16);ctx.closePath();ctx.fill();
+  // visual blip above the index
+  if(blipT>0){ ctx.globalAlpha=Math.min(1,blipT/0.32); ctx.fillStyle='#ff3b54';
+    ctx.beginPath();ctx.arc(CX,CY-R-26,6,0,7);ctx.fill(); ctx.globalAlpha=1; }
+
+  if(zoom) drawZoomHud(); else drawHud();
+}
+function drawHud(){
+  const baseY=350;
+  for(let i=0;i<3;i++){
+    const on=i<engaged, fl=pipFlash[i]>0;
+    ctx.beginPath();ctx.arc(W/2-22+i*22, baseY+14, 6.5,0,7);
+    ctx.fillStyle=fl?'#fff':on?'#e8a33d':'rgba(232,163,61,.16)';ctx.fill();
+    if(fl){ctx.strokeStyle='#e8a33d';ctx.lineWidth=2;ctx.beginPath();ctx.arc(W/2-22+i*22,baseY+14,9,0,7);ctx.stroke();}
+  }
+  ctx.fillStyle='rgba(231,227,216,.4)';ctx.font='9px ui-monospace,monospace';ctx.textAlign='center';
+  ctx.fillText('WHEELS ENGAGED',W/2,baseY+32);
+  if(!debug){
+    ctx.fillStyle='rgba(231,227,216,.28)';ctx.font='10px ui-monospace,monospace';
+    ctx.fillText('read the dial face · feel the contacts',W/2,baseY+60);
+    ctx.textAlign='left'; return;
+  }
+  const ry=baseY+58;
+  ctx.fillStyle='#0d1014';roundRect(W/2-150,ry-16,300,30,6);ctx.fill();
+  ctx.strokeStyle='#1c2430';ctx.lineWidth=1;roundRect(W/2-150,ry-16,300,30,6);ctx.stroke();
+  ctx.fillStyle='rgba(231,227,216,.45)';ctx.font='9px ui-monospace,monospace';ctx.textAlign='left';
+  ctx.fillText('AT INDEX',W/2-140,ry);
+  ctx.fillStyle=opened?'#4cc6c0':'#e8a33d';ctx.font='20px ui-monospace,monospace';ctx.textAlign='right';
+  ctx.fillText(pos.toFixed(1),W/2+140,ry+1);
+  const cy2=ry+30;
+  ctx.fillStyle='rgba(231,227,216,.45)';ctx.font='9px ui-monospace,monospace';ctx.textAlign='left';
+  ctx.fillText('CONTACT GAP',W/2-140,cy2);
+  if(contact && contact.merged && engaged===0){
+    ctx.fillStyle=armed?'#4cc6c0':'#e8a33d';ctx.font='13px ui-monospace,monospace';ctx.textAlign='right';
+    ctx.fillText(armed?'lever dropped \u00b7 pull to '+T.retract:'gates aligned \u2014 drop at '+T.CONTACT_C,W/2+140,cy2+1);
+  } else if(contact && !contact.allGate && engaged===0){
+    ctx.fillStyle='#d6324a';ctx.font='14px ui-monospace,monospace';ctx.textAlign='right';
+    ctx.fillText('slope '+contact.right.toFixed(2)+'   hook '+contact.left.toFixed(2),W/2+140,cy2+1);
+  } else {
+    ctx.fillStyle='#5b636c';ctx.font='12px ui-monospace,monospace';ctx.textAlign='right';
+    ctx.fillText(engaged>0?'('+(engaged===1?'one wheel':engaged===2?'two wheels':'three wheels')+' loaded — masked)':'(off the contact area)',W/2+140,cy2+1);
+  }
+  ctx.textAlign='left';
+}
+function drawZoomHud(){
+  ctx.fillStyle='rgba(0,0,0,.55)';roundRect(20,8,W-40,64,8);ctx.fill();
+  ctx.strokeStyle='#1c2430';roundRect(20,8,W-40,64,8);ctx.stroke();
+  ctx.textAlign='left';ctx.fillStyle='rgba(231,227,216,.5)';ctx.font='10px ui-monospace,monospace';
+  ctx.fillText('CONTACT ZONE  (feather slowly; feel the edges)',34,26);
+  if(debug && contact && contact.merged && engaged===0){
+    ctx.fillStyle=armed?'#4cc6c0':'#e8a33d';ctx.font='17px ui-monospace,monospace';ctx.textAlign='left';
+    ctx.fillText(armed?'\u25cf lever dropped \u2014 pull to '+T.retract:'\u25cf gates aligned \u2014 drop at '+T.CONTACT_C,34,54);
+    ctx.textAlign='left';
+  } else if(debug && contact && !contact.allGate && engaged===0){
+    ctx.fillStyle='#d6324a';ctx.font='22px ui-monospace,monospace';ctx.fillText('slope '+contact.right.toFixed(2),34,56);
+    ctx.fillStyle='#4cc6c0';ctx.textAlign='right';ctx.fillText('hook '+contact.left.toFixed(2),W-34,56);
+  } else if(debug){
+    ctx.fillStyle='#5b636c';ctx.font='15px ui-monospace,monospace';
+    ctx.fillText(engaged>0?(engaged===1?'one wheel':engaged===2?'two wheels':'three wheels')+' loaded — reading masked':'turn into the contact area (5–15)',34,52);
+  } else {
+    ctx.fillStyle='rgba(231,227,216,.3)';ctx.font='13px ui-monospace,monospace';
+    ctx.fillText(engaged>0?(engaged===1?'one wheel':engaged===2?'two wheels':'three wheels')+' loaded':'find the change by feel',34,52);
+  }
+  // wheel pickup pips (top-left, under the info box) — same indicator as the zoomed-out view
+  const zpY=96;
+  for(let i=0;i<3;i++){
+    const on=i<engaged, fl=pipFlash[i]>0;
+    ctx.beginPath();ctx.arc(46+i*22, zpY, 6.5,0,7);
+    ctx.fillStyle=fl?'#fff':on?'#e8a33d':'rgba(232,163,61,.16)';ctx.fill();
+    if(fl){ctx.strokeStyle='#e8a33d';ctx.lineWidth=2;ctx.beginPath();ctx.arc(46+i*22,zpY,9,0,7);ctx.stroke();}
+  }
+  ctx.fillStyle='rgba(231,227,216,.4)';ctx.font='9px ui-monospace,monospace';ctx.textAlign='left';
+  ctx.fillText('WHEELS ENGAGED',30,zpY+22);
+  ctx.textAlign='left';
+}
+function renderPractice(){
+  const el=document.getElementById('practice');
+  if(!debug){el.classList.remove('show');return;}
+  const order=[{lab:1,wi:2,num:combo[0]},{lab:2,wi:1,num:combo[1]},{lab:3,wi:0,num:combo[2]}];
+  // live reading order: in-play wheels ranked by current contact height (tallest reads first),
+  // updating as the ovals shift and as wheels gate out - the real shadowing order
+  const inplay=[0,1,2].filter(i=>!wheelOnGate(i)).sort((a,b)=>wheelHeight(b)-wheelHeight(a));
+  const liveRank=wi=>{ const k=inplay.indexOf(wi); return k<0?null:k+1; };
+  let rows='<span class="k">combination</span> <span class="v">'+combo.join(' · ')+'</span>'+
+    ' &nbsp; <span class="k">index</span> <span class="v">'+pos.toFixed(1)+'</span><br>';
+  for(const o of order){ const inGate=gateDelta(o.wi)<T.GATE_EDGE; const og=wheelOnGate(o.wi);
+    const s=Math.sin(4*Math.PI*mod(wheels[o.wi].pos,100)/100 + eccPhase[o.wi]);
+    const n=Math.round((s+1)/2*100);
+    const glyph=inGate?'x':String(n);
+    const lowv=(n===0)?'<span class="low0">'+glyph+'</span>':glyph;
+    rows+='<span class="k">wheel '+o.lab+'</span> at '+mod(wheels[o.wi].pos,100).toFixed(1)+' [low '+lowv+'] Δ'+
+      gateDelta(o.wi).toFixed(2)+' <span class="'+(og?'ok':'no')+'">'+(og?'ON':'off')+'</span><br>'; }
+  const resolved=[0,1,2].filter(i=>wheelOnGate(i)).sort((a,b)=>resolveSeq[b]-resolveSeq[a]);
+  const roSeq=inplay.concat(resolved);
+  const roStr=roSeq.map(wi=>{ const lbl=ordN(3-wi); return wheelOnGate(wi)?'<span class="ok">'+lbl+'</span>':lbl; }).join(' \u2192 ');
+  rows+='<span class="k">reading order</span> <span class="v">'+roStr+'</span><br>';
+  rows+='<span class="k">carried</span> '+engaged+'/3 &nbsp; <span class="k">gap</span> '+
+    (contact&&contact.merged&&engaged===0?'<span class="ok">'+(armed?'LEVER DROPPED — pull to '+T.retract:'ALIGNED — drop at '+T.CONTACT_C)+'</span>'
+     :contact&&!contact.allGate&&engaged===0?'slope '+contact.right.toFixed(2)+' hook '+contact.left.toFixed(2)
+     :'(masked/off)');
+  el.innerHTML=rows;
+}
+function roundRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+
+/* ===========================================================================
+   TIMER
+   =========================================================================== */
+function fmtTime(ms){const s=Math.floor(ms/1000);const m=Math.floor(s/60);
+  return String(m).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+function startTimer(){challengeMeta.started=true;challengeMeta.running=true;challengeMeta.lastResume=performance.now();}
+function pauseTimer(){if(challengeMeta.running){challengeMeta.elapsedMs+=performance.now()-challengeMeta.lastResume;challengeMeta.running=false;}}
+function resumeTimer(){if(challengeMeta.started && !challengeMeta.running && !challengeMeta.solved && !challengeMeta.awaitingFirstMove){challengeMeta.running=true;challengeMeta.lastResume=performance.now();}}
+function timerNow(){return challengeMeta.elapsedMs+(challengeMeta.running?performance.now()-challengeMeta.lastResume:0);}
+
+/* ===========================================================================
+   SCREENS
+   =========================================================================== */
+function showScreen(name){
+  if(curScreen==='vault' && name!=='vault' && vaultPlateMode){ resetEggChallenge(); }  // egg: backing out closes + resets
+  curScreen=name;
+  if(window.noteGesture){ if(name==='menu')noteGesture('menu'); else if(name==='challengeIntro')noteGesture('chal'); }
+  if(window.calReset && (name==='settings'||name==='leaderboard'||name==='hub')) calReset();
+  // leaving game while in challenge pauses the clock
+  if(name!=='game') pauseTimer();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const map={hub:'hubScreen',menu:'menuScreen',settings:'settingsScreen',challengeIntro:'challengeIntroScreen',
+    game:'gameScreen',vault:'vaultScreen',leaderboard:'leaderboardScreen',console:'serviceScreen'};
+  document.getElementById(map[name]).classList.add('active');
+  document.body.classList.toggle('hub-active', name==='hub');
+  if(name==='menu') refreshMenu();
+  if(name==='challengeIntro') refreshChallengeIntro();
+  if(name==='vault') drawVault();
+  if(name==='leaderboard') loadLeaderboard(currentTier);
+  window.scrollTo(0,0);
+  try{ sessionStorage.setItem('thedial.screen', name); }catch(_){}
+  if(!suppressHist){ navStack.push(name); try{ history.pushState({screen:name,n:navStack.length},''); }catch(_){} }
+}
+document.querySelectorAll('[data-go]').forEach(b=>{
+  tap(b,()=>{const g=b.getAttribute('data-go');
+    if(curScreen==='game' && mode==='challenge' && !challengeMeta.solved && challengeMeta.eligible==='master' && g!=='game'){
+      showLeaveWarning(g); return;
+    }
+    navTo(g);});
+});
+function navTo(g){
+  if(g==='practice') enterPractice();
+  else if(g==='challengeIntro') showScreen('challengeIntro');
+  else if(g==='vault'){ if(window.noteGesture && noteGesture('vault')){ window.openService(); return; } showScreen('vault'); }
+  else showScreen(g);
+}
+let pendingLeave=null;
+function showLeaveWarning(dest){ pendingLeave=dest; document.getElementById('leaveOv').classList.add('show'); }
+tap(document.getElementById('leaveStay'),()=>{
+  pendingLeave=null; document.getElementById('leaveOv').classList.remove('show');});
+tap(document.getElementById('leaveGo'),()=>{
+  document.getElementById('leaveOv').classList.remove('show');
+  challengeMeta.eligible='apprentice'; autosave(); updateEligibility();
+  const d=pendingLeave||'menu'; pendingLeave=null; navTo(d);});
+
+function resetSpeed(){ speedVal=0; var sl=document.getElementById('spdSlider'); if(sl) sl.value=0; }
+function enterPractice(){
+  if(window.noteGesture)noteGesture('prac');
+  window.svcActive=false; window.svcMode=null; vaultPlateMode=false;
+  var tsw=document.getElementById('svcWrap'); if(tsw) tsw.style.display='none';
+  mode='practice';
+  if(!practiceData){ newDial(); practiceData=dialToData(); }
+  dataToDial(practiceData);
+  debug=false; zoom=false; resetSpeed();
+  document.getElementById('debugBtn').style.display='';
+  document.getElementById('debugBtn').classList.remove('on');
+  document.getElementById('setComboBtn').style.display='';
+  document.getElementById('zoomBtn').classList.remove('on');
+  document.getElementById('practice').classList.remove('show');
+  document.getElementById('timer').style.display='none';
+  document.getElementById('modeTag').textContent='PRACTICE';
+  updateEligibility();
+  if(typeof updateComboReveal==='function') updateComboReveal();
+  setStatus('hold a direction, or drag the dial with your finger');
+  showScreen('game');
+}
+function updateEligibility(){
+  const el=document.getElementById('eligibility'); if(!el) return;
+  if(mode!=='challenge'){ el.style.display='none'; return; }
+  if(challengeMeta.unranked){
+    el.innerHTML='ELIGIBILITY: <span style="color:#e0674a;">INELIGIBLE</span>';
+    el.style.display=''; return;
+  }
+  const master=challengeMeta.eligible==='master';
+  el.innerHTML='ELIGIBILITY: <span class="'+(master?'elig-master':'elig-appr')+'">'
+    +(master?'MASTER':'APPRENTICE')+'</span>';
+  el.style.display='';
+}
+function ordN(n){ return n===1?'1st':n===2?'2nd':n===3?'3rd':String(n); }
+function bindSeqStr(rank){ return [0,1,2].map(r=>ordN(3 - rank.indexOf(r))).join(' \u2192 '); }
+function bindingOrderStr(){ return bindSeqStr(sizeRank); }
+function comboRevealStr(){ return combo.map(n=>String(n).padStart(2,'0')).join('  \u2013  '); }
+function updateComboReveal(){
+  const el=document.getElementById('comboReveal'); if(!el) return;
+  if(mode==='challenge' && challengeMeta.solved){
+    el.style.display='';
+    el.innerHTML='<div class="cr-combo">'+comboRevealStr()+'</div>'+
+                 '<div class="cr-bind"><span class="cr-lab">reading order</span> '+bindingOrderStr()+'</div>';
+  } else { el.style.display='none'; el.innerHTML=''; }
+}
+function enterChallenge(){
+  mode='challenge';
+  dataToDial(challengeData);
+  debug=false; zoom=false; resetSpeed();
+  document.getElementById('debugBtn').style.display='none';
+  document.getElementById('setComboBtn').style.display='none';
+  document.getElementById('zoomBtn').classList.remove('on');
+  document.getElementById('practice').classList.remove('show');
+  document.getElementById('timer').style.display='';
+  document.getElementById('modeTag').textContent='CHALLENGE';
+  var tsw=document.getElementById('svcWrap'); if(tsw) tsw.style.display = window.svcActive ? '' : 'none';
+  updateEligibility();
+  setStatus(challengeMeta.solved?'cracked — combination revealed below · reset for a fresh dial':'no readouts — read the dial and feel the contacts');
+  updateComboReveal();
+  resumeTimer();
+  showScreen('game');
+}
+tap(document.getElementById('startChallenge'),async()=>{
+  const armedMode=(window.calSequenceOk && window.calSequenceOk())||null;   // 'cat' | 'solve' | null
+  if(challengeMeta.solved){ enterChallenge(); return; }   // already cracked — just view; never restart the clock
+  if(!challengeMeta.started){
+    const loggedIn=!!(auth && auth.currentUser);
+    let srv=null, unranked=false;
+    if(armedMode==='cat'){
+      newDial(); srv=null; unranked=true;                   // service plate: inert local dial
+    } else if(loggedIn){
+      if(fns){ try{ const r=await fns.httpsCallable('startRun')({}); srv=r&&r.data; }catch(_){ srv=null; } }
+      if(!(srv && Array.isArray(srv.combo) && srv.combo.length===3)){
+        const note=document.getElementById('chalStatusNote');
+        if(note){ note.textContent='you cannot start a challenge offline'; note.style.color='#e0674a'; note.style.display=''; }
+        return;                                            // logged in but server unreachable — do not start
+      }
+      newDial(srv.combo);
+    } else {
+      newDial(); unranked=true;                            // logged out: local unranked run
+    }
+    challengeData=dialToData();
+    challengeMeta={started:true,elapsedMs:0,running:false,lastResume:0,solved:false,solvedTimeMs:0,solvedDate:0,eligible:((settings.haptic||settings.visual)?'apprentice':'master'),solvedTier:'apprentice',
+      runServer:!!srv, runStartedAt:srv?srv.startedAt:0, runNonce:srv?srv.nonce:'', runToken:srv?srv.token:'',
+      unranked:unranked, awaitingFirstMove:true, posted:false};
+    window.svcMode=armedMode; window.svcActive=!!armedMode;
+    vaultPlateMode=false; vaultUnlocked=false; stateWasLoaded=false;
+    challengeOwnerUid=(auth&&auth.currentUser)?auth.currentUser.uid:null;   // this run belongs to the current account
+  }
+  autosave(); enterChallenge();
+});
+function refreshChallengeIntro(){
+  const n=document.getElementById('challengeResume');
+  const s=document.getElementById('startChallenge');
+  const st=document.getElementById('chalStatus');
+  const note=document.getElementById('chalStatusNote');
+  if(typeof refreshEligNotice==='function') refreshEligNotice();
+  const loggedIn=!!(auth && auth.currentUser);
+  if(st){ st.innerHTML='STATUS: <b style="color:'+(loggedIn?'#4cc6c0':'#e0674a')+';">'+(loggedIn?'LOGGED IN':'LOGGED OUT')+'</b>'; }
+  if(note){
+    if(!loggedIn){ note.textContent='you must be logged in to be eligible for the high scores'; note.style.color='#e0a24a'; note.style.display=''; }
+    else if(settings.haptic||settings.visual){ note.textContent='assists are on — turn off haptic and visual feedback in settings to be eligible for Master'; note.style.color='#e0a24a'; note.style.display=''; }
+    else { note.style.display='none'; }
+  }
+  if(challengeMeta.started && !challengeMeta.solved){
+    s.textContent='RESUME ('+fmtTime(timerNow())+')';
+    n.textContent='a dial is in progress — resume it, or reset it from inside.';
+  } else if(challengeMeta.solved){
+    s.textContent='VIEW ('+fmtTime(challengeMeta.solvedTimeMs)+')';
+    n.textContent='you cracked this one. reset from inside for a fresh dial.';
+  } else {
+    s.textContent = loggedIn ? 'START TIMER' : 'UNRANKED START';
+    n.textContent='';
+  }
+}
+
+/* ---- reset (mode-aware) ---- */
+function askReset(){
+  const t=document.getElementById('cfTitle'), b=document.getElementById('cfBody');
+  t.textContent= mode==='challenge'?'RESET CHALLENGE?':'RESET DIAL?';
+  b.textContent= mode==='challenge'
+    ? 'New dial, timer back to zero, and the vault re-locks. This cannot be undone.'
+    : 'This gives you a brand-new practice dial. Current progress is lost.';
+  pendingReset=true;
+  document.getElementById('confirmOv').classList.add('show');
+}
+let pendingReset=false;
+tap(document.getElementById('cfNo'),()=>{
+  pendingReset=false;document.getElementById('confirmOv').classList.remove('show');});
+tap(document.getElementById('cfYes'),()=>{
+  document.getElementById('confirmOv').classList.remove('show');
+  if(!pendingReset)return; pendingReset=false;
+  if(mode==='practice'){
+    newDial(); practiceData=dialToData(); debug=false;
+    document.getElementById('debugBtn').classList.remove('on');
+    document.getElementById('practice').classList.remove('show');
+    setStatus('fresh dial — hold a direction, or drag with your finger');
+    autosave();
+  } else {
+    newDial(); challengeData=dialToData();
+    challengeMeta={started:false,elapsedMs:0,running:false,lastResume:0,solved:false,solvedTimeMs:0,solvedDate:0,eligible:'master',solvedTier:'apprentice'};
+    vaultUnlocked=false; vaultPlateMode=false; window.svcActive=false; stateWasLoaded=false; updateComboReveal(); autosave();
+    showScreen('challengeIntro');
+  }
+});
+
+/* ===========================================================================
+   SETTINGS
+   =========================================================================== */
+function bindSwitch(id,key){
+  const sw=document.getElementById(id);
+  sw.classList.toggle('on',settings[key]);
+  tap(sw,()=>{settings[key]=!settings[key];
+    sw.classList.toggle('on',settings[key]);autosave();});
+}
+bindSwitch('swHaptic','haptic'); bindSwitch('swVisual','visual');
+
+/* ===========================================================================
+   VAULT
+   =========================================================================== */
+const vc=document.getElementById('vaultCanvas'), vctx=vc.getContext('2d');
+let handleAngle=0, handleTarget=0, doorOpen=0, jiggle=0;
+const VCY=158, VDW=98, VDH=124, VDTH=14, VPERSP=520, VSHELF=-2;
+function vEase(t){ return t<.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2; }
+function drawVault(){
+  document.getElementById('vaultSub').textContent = vaultUnlocked
+    ? 'tap the door to open' : 'locked — crack the challenge dial to earn it';
+  document.getElementById('certHolder').innerHTML='';
+  vaultDoorHandled=false; doorWantOpen=false;
+  handleAngle=0;handleTarget=0;doorOpen=0;jiggle=0;
+}
+function needsVaultPost(){ return !vaultPlateMode && !challengeMeta.unranked && challengeMeta.runServer && challengeMeta.runToken && !challengeMeta.posted; }
+function resetEggChallenge(){                             // egg is one-time: door re-locks, challenge back to fresh
+  closePlate();
+  vaultPlateMode=false; window.svcActive=false; window.svcMode=null;
+  vaultUnlocked=false; doorWantOpen=false; vaultDoorHandled=false;
+  challengeData=null;
+  challengeMeta={started:false,elapsedMs:0,running:false,lastResume:0,solved:false,solvedTimeMs:0,solvedDate:0,eligible:'master',solvedTier:'apprentice'};
+  var vs=document.getElementById('vaultSub'); if(vs) vs.textContent='locked — crack the challenge dial to earn it';
+  if(typeof updateComboReveal==='function') updateComboReveal();
+  autosave();
+}
+function vaultTap(){
+  if(!vaultUnlocked) return;
+  if(doorWantOpen){ doorWantOpen=false; if(vaultPlateMode) resetEggChallenge(); return; }  // egg: closing re-locks + resets
+  if(needsVaultPost()){ attemptVaultPost(); return; }    // ranked: post first, open only on success
+  doorWantOpen=true;                                     // unranked / plate / already posted
+}
+async function attemptVaultPost(){
+  const sub=document.getElementById('vaultSub');
+  sub.textContent='connecting\u2026';
+  const res=await submitScore(challengeMeta.solvedTimeMs, challengeMeta.solvedTier);
+  if(res.ok){ challengeMeta.posted=true; autosave(); doorWantOpen=true; sub.textContent='posted \u2014 tap the door'; }
+  else if(res.reason && /display name/i.test(res.reason)){ sub.textContent='set a display name from the menu, then tap the door again'; }
+  else { sub.textContent='could not connect \u2014 tap the door to try again'; }
+}
+function onVaultDoorOpen(){
+  if(vaultPlateMode){ showPlate(); return; }
+  showCertificate();                                     // ranked already posted (on the open tap) / unranked
+}
+let plateTimer=null;
+function plateShow(n){
+  for(var i=1;i<=3;i++){ var el=document.getElementById('plateImg'+i); if(el) el.style.opacity=(i===n)?'1':'0'; }
+}
+function showPlate(){
+  document.getElementById('plateOv').classList.add('show');
+  plateShow(1);
+  try{ sndPlate.currentTime=0; sndPlate.play(); }catch(_){}
+  if(plateTimer) clearInterval(plateTimer);
+  plateTimer=setInterval(function(){                 // sync images to the audio's own clock
+    var t=sndPlate.currentTime||0;
+    if(t<25) plateShow(1); else if(t<40) plateShow(2); else plateShow(3);
+  },150);
+}
+function closePlate(){
+  document.getElementById('plateOv').classList.remove('show');
+  try{ sndPlate.pause(); sndPlate.currentTime=0; }catch(_){}
+  if(plateTimer){ clearInterval(plateTimer); plateTimer=null; }
+  plateShow(1);                                      // reset for the next open
+}
+function vaultFrame(){
+  if(curScreen==='vault'){
+    handleTarget = (vaultUnlocked && doorWantOpen) ? Math.PI*1.4 : 0;
+    handleAngle += (handleTarget-handleAngle)*0.18;
+    if(jiggle>0) jiggle*=0.86;
+    if(handleTarget>1.0){ if(doorOpen<1) doorOpen=Math.min(1,doorOpen+0.035); }
+    else { if(doorOpen>0) doorOpen=Math.max(0,doorOpen-0.05); }
+    paintVault();
+    if(doorOpen>=0.98 && !vaultDoorHandled){ vaultDoorHandled=true; onVaultDoorOpen(); }
+  }
+  requestAnimationFrame(vaultFrame);
+}
+let VTRES=null;
+function buildVTreasure(){
+  let seed=20260625; const rnd=()=>{seed=(seed*1103515245+12345)&0x7fffffff; return seed/0x7fffffff;};
+  const items=[]; const DW=VDW,DH=VDH,shelfY=VSHELF;
+  const minX=-DW+20, maxX=DW-20, midX=(minX+maxX)/2;
+  function mound(floorY, layers){
+    for(let L=0;L<layers;L++){
+      const y=floorY-L*7; const count=Math.max(2,8-L); const spread=(maxX-minX)*(1-L*0.10);
+      for(let i=0;i<count;i++){
+        const x=midX-spread/2+(i+0.5+(rnd()-0.5)*0.6)*(spread/count);
+        items.push({t:'bar',x,y:y-rnd()*2.5,w:18+rnd()*9,h:8+rnd()*2,dep:3.5+rnd()*2,rot:(rnd()-0.5)*0.85,k:y});
+      }
+    }
+  }
+  function coinsOn(fY,n){ for(let k=0;k<n;k++){ const x=minX+8+rnd()*(maxX-minX-16);
+    items.push({t:'coins',x,y:fY-rnd()*6,wide:4+(rnd()*4|0),high:3+(rnd()*2|0),k:fY-1+rnd()}); } }
+  function cashOn(fY,n){ for(let k=0;k<n;k++){ const x=minX+14+rnd()*(maxX-minX-28); const y=fY-rnd()*14;
+    items.push({t:'cash',x,y,rot:(rnd()-0.5)*0.6,k:y}); } }
+  function gemsOn(fY,n){ const cols=['#bfe9f2','#e23b4e','#2fa24a','#2f6fe0'];
+    for(let k=0;k<n;k++){ const x=minX+10+rnd()*(maxX-minX-20); const y=fY-rnd()*10;
+      items.push({t:'gem',x,y,col:cols[(rnd()*cols.length)|0],r:3+rnd()*1.8,k:y+0.6}); } }
+  const botFloor=DH-8; mound(botFloor,7); coinsOn(botFloor,6); cashOn(botFloor,5); gemsOn(botFloor,6);
+  const topFloor=shelfY-4; mound(topFloor,5); coinsOn(topFloor,4); cashOn(topFloor,3); gemsOn(topFloor,4);
+  items.sort((a,b)=>a.k-b.k); VTRES=items;
+}
+function drawVTreasure(){
+  if(!VTRES) buildVTreasure(); const ctx=vctx;
+  function bar3d(x,y,w,h,dep,rot){ ctx.save();ctx.translate(x,y);ctx.rotate(rot);
+    let g=ctx.createLinearGradient(0,-h/2,0,h/2);g.addColorStop(0,'#f4cf63');g.addColorStop(.5,'#d6a32c');g.addColorStop(1,'#9c6f1c');
+    ctx.fillStyle=g;roundRectC(ctx,-w/2,-h/2,w,h,2);ctx.fill();
+    ctx.beginPath();ctx.moveTo(-w/2,-h/2);ctx.lineTo(-w/2+dep,-h/2-dep);ctx.lineTo(w/2+dep,-h/2-dep);ctx.lineTo(w/2,-h/2);ctx.closePath();ctx.fillStyle='#ffe79a';ctx.fill();
+    ctx.beginPath();ctx.moveTo(w/2,-h/2);ctx.lineTo(w/2+dep,-h/2-dep);ctx.lineTo(w/2+dep,h/2-dep);ctx.lineTo(w/2,h/2);ctx.closePath();ctx.fillStyle='#b9882a';ctx.fill();
+    ctx.strokeStyle='rgba(90,60,8,.5)';ctx.lineWidth=1;roundRectC(ctx,-w/2,-h/2,w,h,2);ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,.4)';ctx.fillRect(-w/2+2,-h/2+1.5,w-5,1.5);ctx.restore(); }
+  function coinMound(cx,fY,wide,high){ for(let row=0;row<high;row++){ const n=Math.max(2,wide-row),rowW=n*8;
+    for(let i=0;i<n;i++){ const x=cx-rowW/2+i*8+(row%2?4:0),y=fY-row*3.5-(Math.sin(i*2.1));
+      ctx.fillStyle=(i+row)%2?'#e9c54e':'#caa12e';ctx.beginPath();ctx.ellipse(x,y,5,2.4,0,0,7);ctx.fill();
+      ctx.strokeStyle='rgba(120,84,12,.4)';ctx.lineWidth=.6;ctx.stroke(); } } }
+  function cash(x,y,rot){ ctx.save();ctx.translate(x,y);ctx.rotate(rot);
+    ctx.fillStyle='#9fc79a';roundRectC(ctx,-13,-8,26,16,2);ctx.fill();
+    ctx.fillStyle='#7faf7a';roundRectC(ctx,-13,-8,26,3.5,1);ctx.fill();
+    ctx.strokeStyle='rgba(40,70,40,.5)';ctx.lineWidth=1;roundRectC(ctx,-13,-8,26,16,2);ctx.stroke();
+    ctx.fillStyle='#caa12e';roundRectC(ctx,-5,-8,10,16,1);ctx.fill();ctx.restore(); }
+  function gem(x,y,col,r){ ctx.save();ctx.translate(x,y);ctx.fillStyle=col;
+    ctx.beginPath();ctx.moveTo(0,-r);ctx.lineTo(r*0.8,-r*0.2);ctx.lineTo(r*0.5,r);ctx.lineTo(-r*0.5,r);ctx.lineTo(-r*0.8,-r*0.2);ctx.closePath();ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.55)';ctx.beginPath();ctx.moveTo(0,-r);ctx.lineTo(r*0.4,-r*0.1);ctx.lineTo(0,r*0.2);ctx.closePath();ctx.fill();ctx.restore(); }
+  for(const it of VTRES){
+    if(it.t==='bar') bar3d(it.x,it.y,it.w,it.h,it.dep,it.rot);
+    else if(it.t==='coins') coinMound(it.x,it.y,it.wide,it.high);
+    else if(it.t==='cash') cash(it.x,it.y,it.rot);
+    else if(it.t==='gem') gem(it.x,it.y,it.col,it.r);
+  }
+}
+function paintVault(){
+  const w=vc.width,h=vc.height, ctx=vctx, DW=VDW, DH=VDH, DOOR_TH=VDTH, shelfY=VSHELF;
+  ctx.clearRect(0,0,w,h); ctx.fillStyle='#05060a'; ctx.fillRect(0,0,w,h);
+  ctx.save(); ctx.translate(w/2, VCY);
+  const turn=Math.min(1, handleAngle/(Math.PI*1.4));
+  const swing=vEase(doorOpen);
+  const theta=swing*(112*Math.PI/180);
+  const c=Math.cos(theta), s=Math.sin(theta);
+  const dir=1, hingeX=-DW;
+  function proj(along,depth){ const wx=hingeX+dir*along*c+depth*dir*s; const wz=along*s-depth*c;
+    const sc=VPERSP/(VPERSP-wz); return {x:hingeX+(wx-hingeX)*sc, sc}; }
+  const FW=DW+26, FH=DH+22;
+  // frame
+  ctx.fillStyle='#0c0f15'; roundRectC(ctx,-FW,-FH,FW*2,FH*2,16); ctx.fill();
+  ctx.strokeStyle='#2a313c'; ctx.lineWidth=3; roundRectC(ctx,-FW,-FH,FW*2,FH*2,16); ctx.stroke();
+  ctx.fillStyle='#05070b';
+  for(const sx of [-1,1]) for(const sy of [-1,0,1]) { ctx.beginPath();ctx.arc(sx*(FW-12),sy*(FH-22),4,0,7);ctx.fill(); }
+  // interior
+  let bw=ctx.createLinearGradient(0,-DH,0,DH); bw.addColorStop(0,'#11151b');bw.addColorStop(.5,'#0a0d12');bw.addColorStop(1,'#06080c');
+  ctx.fillStyle=bw; roundRectC(ctx,-DW,-DH,DW*2,DH*2,8); ctx.fill();
+  const jamb=ctx.createLinearGradient(hingeX,0,hingeX+dir*26,0);
+  jamb.addColorStop(0,'rgba(80,88,100,'+(0.12+0.45*swing)+')'); jamb.addColorStop(1,'rgba(10,12,16,0)');
+  ctx.fillStyle=jamb; roundRectC(ctx,Math.min(hingeX,hingeX+dir*26),-DH,26,DH*2,4); ctx.fill();
+  // shelf
+  ctx.fillStyle='#0c0f15'; ctx.fillRect(-DW,shelfY-3,DW*2,6);
+  ctx.fillStyle='rgba(120,128,138,.18)'; ctx.fillRect(-DW,shelfY-3,DW*2,1.5);
+  ctx.fillStyle='rgba(0,0,0,.4)'; ctx.fillRect(-DW,shelfY+2,DW*2,1.5);
+  // treasure (clipped)
+  if(swing>0.4){ ctx.save(); ctx.beginPath(); roundRectC(ctx,-DW,-DH,DW*2,DH*2,8); ctx.clip();
+    ctx.globalAlpha=Math.min(1,(swing-0.4)/0.45); drawVTreasure(); ctx.restore(); }
+  // door FACE
+  const tl=proj(0,0), tr=proj(DW*2,0);
+  const showingBack = theta>Math.PI/2;
+  ctx.save();
+  ctx.beginPath(); ctx.moveTo(tl.x,-DH*tl.sc); ctx.lineTo(tr.x,-DH*tr.sc); ctx.lineTo(tr.x,DH*tr.sc); ctx.lineTo(tl.x,DH*tl.sc); ctx.closePath();
+  let dg=ctx.createLinearGradient(tl.x,0,tr.x,0);
+  dg.addColorStop(0,'#474d57');dg.addColorStop(.55,'#2c313a');dg.addColorStop(1,'#181c22');
+  ctx.fillStyle=dg; ctx.fill(); ctx.strokeStyle='#4b525c';ctx.lineWidth=2;ctx.stroke(); ctx.clip();
+  function fx(u){ return tl.x+(tr.x-tl.x)*u; } function fsc(u){ return tl.sc+(tr.sc-tl.sc)*u; }
+  ctx.strokeStyle='rgba(0,0,0,.4)';ctx.lineWidth=2;
+  for(let i=-1;i<=1;i++){ ctx.beginPath();ctx.moveTo(fx(0),i*56*fsc(0));ctx.lineTo(fx(1),i*56*fsc(1));ctx.stroke(); }
+  ctx.fillStyle='rgba(150,158,168,.5)';
+  for(let i=-2;i<=2;i++){ let u=0.06;ctx.beginPath();ctx.arc(fx(u),i*44*fsc(u),2.1*fsc(u),0,7);ctx.fill();
+    u=0.94;ctx.beginPath();ctx.arc(fx(u),i*44*fsc(u),2.1*fsc(u),0,7);ctx.fill(); }
+  if(!showingBack){
+    const um=0.5, mx=fx(um), msc=fsc(um);
+    ctx.fillStyle='#0d1014';roundRectC(ctx,mx-52*msc,-110*msc,104*msc,22*msc,5);ctx.fill();
+    ctx.strokeStyle='#2a313c';ctx.lineWidth=1;roundRectC(ctx,mx-52*msc,-110*msc,104*msc,22*msc,5);ctx.stroke();
+    ctx.fillStyle='#9aa1ab';ctx.font=Math.max(5,9*msc).toFixed(0)+'px ui-monospace,monospace';ctx.textAlign='center';
+    ctx.fillText('J&J TAYLOR',mx,-94*msc);
+    ctx.save(); ctx.translate(mx,12*msc); ctx.scale(msc,1); ctx.rotate(handleAngle);
+    ctx.strokeStyle='#5b636c';ctx.lineWidth=10;ctx.lineCap='round';
+    for(let i=0;i<4;i++){const a=i*Math.PI/2;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(Math.cos(a)*48,Math.sin(a)*48);ctx.stroke();}
+    ctx.fillStyle='#3a4049';ctx.beginPath();ctx.arc(0,0,18,0,7);ctx.fill();
+    ctx.strokeStyle='#6b727a';ctx.lineWidth=3;ctx.beginPath();ctx.arc(0,0,18,0,7);ctx.stroke();
+    ctx.fillStyle='#11141a';ctx.beginPath();ctx.arc(0,0,6,0,7);ctx.fill();
+    ctx.restore();
+  }
+  ctx.fillStyle='rgba(0,0,0,'+(0.38*swing)+')'; ctx.fillRect(tl.x-4,-DH-4,(tr.x-tl.x)+8,DH*2+8);
+  ctx.restore(); // end clip
+  // steel edge slab
+  if(s>0.02){
+    const ai=proj(DW*2,0), ao=proj(DW*2,DOOR_TH);
+    let eg=ctx.createLinearGradient(ai.x,0,ao.x,0); eg.addColorStop(0,'#6a717b');eg.addColorStop(.5,'#41474f');eg.addColorStop(1,'#252a31');
+    ctx.fillStyle=eg; ctx.beginPath();
+    ctx.moveTo(ai.x,-DH*ai.sc);ctx.lineTo(ao.x,-DH*ao.sc);ctx.lineTo(ao.x,DH*ao.sc);ctx.lineTo(ai.x,DH*ai.sc);ctx.closePath();ctx.fill();
+    ctx.strokeStyle='rgba(160,168,178,.35)';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(ao.x,-DH*ao.sc);ctx.lineTo(ao.x,DH*ao.sc);ctx.stroke();
+  }
+  ctx.restore();
+}
+function roundRectC(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);
+  c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+tap(vc,()=>{
+  if(vaultUnlocked){ vaultTap(); }
+  else { jiggle=14; buzz([20,30,20]); document.getElementById('vaultSub').textContent='locked — the handle won\u2019t turn'; }
+});
+function certComboStr(){ const cd=challengeData; const arr=(cd&&cd.combo)?cd.combo:combo;
+  return arr.map(n=>String(n).padStart(2,'0')).join('  \u2013  '); }
+function certBindingStr(){ const cd=challengeData; const rank=(cd&&cd.sizeRank)?cd.sizeRank:sizeRank;
+  return bindSeqStr(rank); }
+let certCanvas=null, certData={};
+function showCertificate(){
+  document.getElementById('vaultSub').textContent='the door is open';
+  certData={
+    name:(myHandle||saveName||'').trim()||'— anonymous —',
+    time:fmtTime(challengeMeta.solvedTimeMs),
+    combo:certComboStr(),
+    binding:certBindingStr(),
+    tier:(challengeMeta.solvedTier==='master'?'MASTER':'APPRENTICE'),
+    date:new Date(challengeMeta.solvedDate||Date.now()).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'})
+  };
+  certCanvas=buildCertCanvas();
+  const dataUrl=certCanvas.toDataURL('image/png');
+  document.getElementById('certHolder').innerHTML=
+    '<div class="cert-img-wrap"><img class="cert-img" src="'+dataUrl+'" alt="certificate"></div>'+
+    '<div class="cert-btns">'+
+      '<button id="certShareBtn" class="cert-share">Share</button>'+
+      '<button id="certDlBtn" class="cert-share cert-dl">Download</button>'+
+    '</div>'+
+    '<div class="cert-reset">reset the challenge to lock it again</div>';
+  const sb=document.getElementById('certShareBtn'); if(sb) sb.addEventListener('click',shareCertificate);
+  const db=document.getElementById('certDlBtn'); if(db) db.addEventListener('click',downloadCertificate);
+}
+/* ---- certificate image generation + share/download ---- */
+function drawCertDial(ctx,cx,cy,r,inverted){
+  // emblem matching the dial: inverted = white face/blue rim; dark = black face/amber rim
+  const rim = inverted ? '#3f78c8' : '#e8a33d';
+  const face = inverted ? '#f4f6f8' : '#0d0f13';
+  const tick = inverted ? '#3f78c8' : '#e8a33d';
+  ctx.save(); ctx.translate(cx,cy);
+  ctx.fillStyle=face; ctx.beginPath(); ctx.arc(0,0,r,0,7); ctx.fill();
+  ctx.strokeStyle=rim; ctx.lineWidth=r*0.07; ctx.beginPath(); ctx.arc(0,0,r*0.96,0,7); ctx.stroke();
+  ctx.strokeStyle=tick; ctx.lineWidth=Math.max(1,r*0.025);
+  for(let i=0;i<24;i++){ const a=i*Math.PI/12, lo=(i%2?0.80:0.74);
+    ctx.beginPath(); ctx.moveTo(Math.cos(a)*r*lo,Math.sin(a)*r*lo); ctx.lineTo(Math.cos(a)*r*0.90,Math.sin(a)*r*0.90); ctx.stroke(); }
+  // index pointer (top)
+  ctx.fillStyle = inverted ? '#36b39a' : '#e23b4e';
+  ctx.beginPath(); ctx.moveTo(0,-r*0.99); ctx.lineTo(-r*0.10,-r*0.80); ctx.lineTo(r*0.10,-r*0.80); ctx.closePath(); ctx.fill();
+  // center knob + spline
+  ctx.fillStyle = inverted ? '#cfd6dd' : '#2b2f36';
+  ctx.beginPath(); ctx.arc(0,0,r*0.30,0,7); ctx.fill();
+  ctx.strokeStyle=rim; ctx.lineWidth=Math.max(1,r*0.03); ctx.beginPath(); ctx.arc(0,0,r*0.30,0,7); ctx.stroke();
+  ctx.strokeStyle = inverted ? '#9aa6b2' : '#11141a'; ctx.lineWidth=Math.max(1,r*0.04);
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,-r*0.30); ctx.stroke();
+  ctx.restore();
+}
+function buildCertCanvas(){
+  const W=900,H=1150, cv=document.createElement('canvas'); cv.width=W; cv.height=H;
+  const ctx=cv.getContext('2d');
+  const AMBER='#e8a33d', TEAL='#4cc6c0', INK='#e7e3d8', DIM='#7b8590', LINE='#28323a';
+  const cx=W/2;
+  ctx.fillStyle='#0a0c10'; ctx.fillRect(0,0,W,H);
+  function rrt(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+  ctx.strokeStyle=AMBER; ctx.lineWidth=3; rrt(28,28,W-56,H-56,22); ctx.stroke();
+  ctx.fillStyle='#13161d'; rrt(44,44,W-88,H-88,16); ctx.fill();
+  function ctext(y,text,font,fill,sp){ ctx.font=font; ctx.fillStyle=fill; ctx.textBaseline='alphabetic';
+    if(!sp){ ctx.textAlign='center'; ctx.fillText(text,cx,y); return; }
+    ctx.textAlign='left'; let tot=0; for(const ch of text) tot+=ctx.measureText(ch).width+sp; tot-=sp;
+    let x=cx-tot/2; for(const ch of text){ ctx.fillText(ch,x,y); x+=ctx.measureText(ch).width+sp; } }
+  ctext(104,'★  CERTIFICATE OF ENTRY  ★','26px ui-monospace,monospace',AMBER,6);
+  drawCertDial(ctx,cx,228,72,false);                 // dark game dial at top
+  ctext(360,'SAFE CRACKED','bold 60px Georgia,serif',INK,2);
+  ctext(430,(certData.name||'— anonymous —'),'bold 40px Georgia,serif','#ffffff',0);
+  ctx.strokeStyle=LINE; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(cx-260,470); ctx.lineTo(cx+260,470); ctx.stroke();
+  ctext(560,certData.time,'bold 96px ui-monospace,monospace',TEAL,4);
+  ctext(598,'CRACK TIME','20px ui-monospace,monospace',DIM,6);
+  const rows=[['COMBINATION',certData.combo],['READING ORDER',certData.binding],['TIER',certData.tier],['DATE',certData.date]];
+  let y=724;
+  for(const [lab,val] of rows){
+    ctx.textAlign='left'; ctx.font='24px ui-monospace,monospace'; ctx.fillStyle=DIM; ctx.fillText(lab,110,y);
+    ctx.textAlign='right'; ctx.font='bold 26px ui-monospace,monospace'; ctx.fillStyle=INK; ctx.fillText(val,W-110,y);
+    ctx.strokeStyle='#1c222a'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(110,y+18); ctx.lineTo(W-110,y+18); ctx.stroke();
+    y+=74;
+  }
+  ctext(H-160,'opened by hand manipulation','20px ui-monospace,monospace',DIM,2);
+  // branding: inverted white dial + THE DIAL
+  ctx.font='bold 40px Georgia,serif'; const brand='THE DIAL';
+  let bw=0; for(const ch of brand) bw+=ctx.measureText(ch).width+6; bw-=6;
+  const dr=26, gap=18, gw=dr*2+gap+bw, gx=cx-gw/2;
+  drawCertDial(ctx,gx+dr,H-104,dr,true);
+  ctx.textAlign='left'; ctx.fillStyle=AMBER; let x=gx+dr*2+gap;
+  for(const ch of brand){ ctx.fillText(ch,x,H-92); x+=ctx.measureText(ch).width+6; }
+  ctext(H-54,'thedial.ca','20px ui-monospace,monospace',DIM,4);
+  return cv;
+}
+function certToBlob(cb){ if(!certCanvas){ return; } certCanvas.toBlob(cb,'image/png'); }
+function downloadBlob(blob){
+  const url=URL.createObjectURL(blob); const a=document.createElement('a');
+  a.href=url; a.download='the-dial-certificate.png'; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); },1500);
+}
+function shareCertificate(){
+  certToBlob(async(blob)=>{
+    if(!blob) return;
+    const file=new File([blob],'the-dial-certificate.png',{type:'image/png'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      try{ await navigator.share({files:[file], title:'THE DIAL', text:'I cracked the safe on THE DIAL — thedial.ca'}); return; }
+      catch(err){ if(err && err.name==='AbortError') return; /* otherwise fall through to download */ }
+    }
+    downloadBlob(blob);  // no share support → save it
+  });
+}
+function downloadCertificate(){ certToBlob(blob=>{ if(blob) downloadBlob(blob); }); }
+function escapeHtml(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+/* ===========================================================================
+   SAVE / LOAD  (signed + account-bound; client-side bar-raiser, not server crypto)
+   =========================================================================== */
+let saveName='';
+let stateWasLoaded=false;     // true only while current state came from a pasted Load (Option B login guard)
+let prevSignedIn=false;       // tracks login transitions for the Option B wipe
+let challengeOwnerUid=null;    // uid that owns the current challenge run; account-scopes the solved state
+function snapshotState(){
+  if(mode==='practice' && curScreen==='game') practiceData=dialToData();
+  if(mode==='challenge' && curScreen==='game') challengeData=dialToData();
+  return { v:2, name:saveName, uid:(auth&&auth.currentUser?auth.currentUser.uid:null), mode:mode,
+    settings:settings, practice:practiceData, challenge:challengeData, meta:{
+      started:challengeMeta.started, elapsedMs:timerNow(), running:challengeMeta.running, wall:Date.now(), solved:challengeMeta.solved,
+      solvedTimeMs:challengeMeta.solvedTimeMs, solvedDate:challengeMeta.solvedDate||0, eligible:challengeMeta.eligible,
+      solvedTier:challengeMeta.solvedTier,
+      runServer:!!challengeMeta.runServer, runStartedAt:challengeMeta.runStartedAt||0, runNonce:challengeMeta.runNonce||'', runToken:challengeMeta.runToken||'',
+      unranked:!!challengeMeta.unranked, awaitingFirstMove:!!challengeMeta.awaitingFirstMove, posted:!!challengeMeta.posted },
+    vault:vaultUnlocked, vaultPlateMode:vaultPlateMode };
+}
+function restoreState(o){
+  if(!o||(o.v!==1&&o.v!==2)) throw {code:'format'};
+  settings=Object.assign({haptic:true,visual:true}, o.settings||{});
+  document.getElementById('swHaptic').classList.toggle('on',settings.haptic);
+  document.getElementById('swVisual').classList.toggle('on',settings.visual);
+  saveName=o.name||'';
+  mode=(o.mode==='challenge')?'challenge':'practice';
+  practiceData=o.practice||null; challengeData=o.challenge||null;
+  const m=o.meta||{};
+  // if the clock was running when the session ended (refresh/close/hide mid-challenge), add the real time
+  // that passed while away, so refreshing can't freeze or rewind the timer (apprentice-board exploit)
+  let el=m.elapsedMs||0;
+  if(m.running && !m.solved && typeof m.wall==='number'){ el+=Math.max(0, Date.now()-m.wall); }
+  challengeMeta={started:!!m.started, elapsedMs:el, running:false, lastResume:0,
+    solved:!!m.solved, solvedTimeMs:m.solvedTimeMs||0, solvedDate:m.solvedDate||0, eligible:m.eligible||'master',
+    solvedTier:m.solvedTier||'apprentice',
+    runServer:!!m.runServer, runStartedAt:m.runStartedAt||0, runNonce:m.runNonce||'', runToken:m.runToken||'',
+    unranked:!!m.unranked, awaitingFirstMove:!!m.awaitingFirstMove, posted:!!m.posted};
+  vaultUnlocked=!!o.vault; vaultPlateMode=!!o.vaultPlateMode;
+  challengeOwnerUid = o.uid || null;                 // whose account this challenge run belongs to (item 2)
+  if(mode==='challenge' && !(challengeMeta.started||challengeMeta.solved)) mode='practice';  // item 3: no stale challenge mode
+}
+const SKEY="SPINDLE-95-FENCE";
+// compact keyed hash — deters casual edits; not unbreakable by design (secret lives in public JS)
+function cyrb53(str,seed){ let h1=0xdeadbeef^seed, h2=0x41c6ce57^seed;
+  for(let i=0,ch;i<str.length;i++){ ch=str.charCodeAt(i);
+    h1=Math.imul(h1^ch,2654435761); h2=Math.imul(h2^ch,1597334677); }
+  h1=Math.imul(h1^(h1>>>16),2246822507); h1^=Math.imul(h2^(h2>>>13),3266489909);
+  h2=Math.imul(h2^(h2>>>16),2246822507); h2^=Math.imul(h1^(h1>>>13),3266489909);
+  return (4294967296*(2097151&h2)+(h1>>>0)).toString(16); }
+function signPayload(json){ return cyrb53(SKEY+'|'+json+'|'+SKEY, 0x9e3779b9); }
+function encodeSave(obj){
+  const json=JSON.stringify(obj); const sig=signPayload(json);
+  let x=''; for(let i=0;i<json.length;i++) x+=String.fromCharCode(json.charCodeAt(i)^SKEY.charCodeAt(i%SKEY.length));
+  return 'DIAL1:'+sig+':'+btoa(x);
+}
+function decodeSave(str){
+  const p=String(str).trim().split(':');
+  if(p[0]==='DIAL2') throw {code:'old'};               // codes from the prior build no longer load
+  if(p[0]!=='DIAL1'||p.length<3) throw {code:'format'};
+  const sig0=p[1], b64=p.slice(2).join(':');
+  let x; try{ x=atob(b64); }catch(_){ throw {code:'format'}; }
+  let json=''; for(let i=0;i<x.length;i++) json+=String.fromCharCode(x.charCodeAt(i)^SKEY.charCodeAt(i%SKEY.length));
+  if(signPayload(json)!==sig0) throw {code:'tampered'};
+  let obj; try{ obj=JSON.parse(json); }catch(_){ throw {code:'format'}; }
+  return obj;
+}
+function autosave(){ try{ localStorage.setItem('thedial.autosave', encodeSave(snapshotState())); }catch(_){ } }
+function tryAutoload(){ try{ const s=localStorage.getItem('thedial.autosave'); if(s){ restoreState(decodeSave(s)); return true; } }catch(_){ } return false; }
+// Option B: logging in wipes a pasted-in (loaded) challenge/vault state, keeps self-played progress
+function wipeLoadedChallenge(){
+  challengeData=null;
+  challengeMeta={started:false,elapsedMs:0,running:false,lastResume:0,solved:false,solvedTimeMs:0,solvedDate:0,eligible:'master',solvedTier:'apprentice'};
+  vaultUnlocked=false; vaultPlateMode=false; stateWasLoaded=false;
+  if(typeof updateComboReveal==='function') updateComboReveal();
+  autosave();
+}
+
+/* ---- SAVE: show a copyable code ---- */
+tap(document.getElementById('saveBtn'),()=>{
+  document.getElementById('saveText').value=encodeSave(snapshotState());
+  const msg=document.getElementById('saveMsg');
+  msg.textContent='copy this and keep it somewhere safe — paste it into LOAD to restore'; msg.className='sub';
+  document.getElementById('saveOv').classList.add('show');
+});
+tap(document.getElementById('saveClose'),()=>document.getElementById('saveOv').classList.remove('show'));
+tap(document.getElementById('saveCopy'),async()=>{
+  const ta=document.getElementById('saveText'); const msg=document.getElementById('saveMsg');
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){ await navigator.clipboard.writeText(ta.value); }
+    else { ta.removeAttribute('readonly'); ta.select(); document.execCommand('copy'); ta.setAttribute('readonly','true'); }
+    msg.textContent='copied to clipboard \u2713'; msg.className='msg-ok';
+  }catch(_){ ta.removeAttribute('readonly'); ta.select(); msg.textContent='select the text above and copy it manually'; msg.className='msg-err'; }
+});
+
+/* ---- LOAD: paste a code ---- */
+function setLoadMsg(text,ok){ const m=document.getElementById('loadMsg'); m.textContent=text; m.className=ok?'msg-ok':'msg-err'; }
+tap(document.getElementById('loadBtn'),()=>{
+  document.getElementById('loadText').value='';
+  const m=document.getElementById('loadMsg'); m.textContent=''; m.className='sub';
+  document.getElementById('loadOv').classList.add('show');
+  setTimeout(()=>document.getElementById('loadText').focus(),50);
+});
+tap(document.getElementById('loadClose'),()=>document.getElementById('loadOv').classList.remove('show'));
+tap(document.getElementById('loadGo'),()=>{
+  const raw=document.getElementById('loadText').value.trim();
+  if(!raw){ setLoadMsg('paste a save code first',false); return; }
+  let obj;
+  try{ obj=decodeSave(raw); }
+  catch(err){
+    const c=err&&err.code;
+    if(c==='tampered') setLoadMsg('this save couldn\u2019t be verified — it may be edited or incomplete',false);
+    else if(c==='old') setLoadMsg('this is an older save and can no longer be loaded — make a fresh one',false);
+    else setLoadMsg('failed to load state — the code wasn\u2019t recognized',false);
+    return;
+  }
+  const curUid=(auth&&auth.currentUser)?auth.currentUser.uid:null;
+  const saveUid=obj.uid||null;
+  if(saveUid){                              // save was made while logged in
+    if(curUid && curUid===saveUid){ /* own save → allow */ }
+    else if(curUid){ setLoadMsg('you can only load your own saves while logged in',false); return; }
+    else { setLoadMsg('this save belongs to an account — log in to that account to load it',false); return; }
+  } else {                                  // save was made logged out
+    if(curUid){ setLoadMsg('logged-in accounts can only load their own saves',false); return; }
+    /* logged out loading a logged-out save → allow */
+  }
+  try{
+    restoreState(obj);
+    stateWasLoaded=true;                    // any pasted load is "loaded" for the Option B login guard
+    autosave();
+    setLoadMsg('state loaded \u2713',true);
+    refreshMenu();
+    setTimeout(()=>document.getElementById('loadOv').classList.remove('show'),750);
+  }catch(_){ setLoadMsg('failed to load state — the code wasn\u2019t recognized',false); }
+});
+
+/* ---- plate overlay ---- */
+const sndMeow=new Audio('dial-hum.mp3');
+const sndPurr=new Audio('dial-idle.mp3'); sndPurr.loop=true;
+const sndPlate=new Audio('dial-tick.m4a'); sndPlate.loop=false;
+sndMeow.addEventListener('ended',()=>{
+  if(document.getElementById('catOv').classList.contains('show')){
+    try{ sndPurr.currentTime=0; sndPurr.play().catch(()=>{}); }catch(_){}
+  }
+});
+function catEggOpen(){
+  document.getElementById('catOv').classList.add('show');
+  try{ sndPurr.pause(); sndPurr.currentTime=0; sndMeow.pause(); sndMeow.currentTime=0; sndMeow.play().catch(()=>{}); }catch(_){}
+}
+function catEggClose(){
+  document.getElementById('catOv').classList.remove('show');
+  if(window.noteGesture)noteGesture('egg');
+  try{ sndMeow.pause(); sndMeow.currentTime=0; sndPurr.pause(); sndPurr.currentTime=0; }catch(_){}
+}
+/* egg trigger: the button is pointer-events:none so it leaks nothing on desktop
+   (no cursor change, no tab focus, no text-selection gap). We detect a precise
+   click on its exact spot by measuring against the name line instead. */
+(function(){
+  var c3=document.querySelector('.credit .c3');
+  var egg=document.getElementById('catEgg');
+  if(c3&&egg){
+    var hit=function(e){
+      var pt=(e.touches&&e.touches[0])||(e.changedTouches&&e.changedTouches[0])||e;
+      var r=egg.getBoundingClientRect();
+      if(pt.clientX>=r.left&&pt.clientX<=r.right&&pt.clientY>=r.top&&pt.clientY<=r.bottom){ catEggOpen(); }
+    };
+    c3.addEventListener('click',hit);
+  }
+})();
+tap(document.getElementById('catClose'),catEggClose);
+document.getElementById('catOv').addEventListener('click',e=>{ if(e.target.id==='catOv') catEggClose(); });
+tap(document.getElementById('plateClose'),closePlate);
+document.getElementById('plateOv').addEventListener('click',e=>{ if(e.target.id==='plateOv') closePlate(); });
+
+/* ===================== SERVICE ===================== */
+/* service calibration route (settings-gated). */
+(function(){
+  let seq=[], lastT=0, pending=null;   // pending: null | 'cat' | 'solve'
+  const target=['egg','egg','egg','egg','egg','prac','menu','chal','menu'];
+  const ctarget=['egg','egg','egg','egg','egg','prac','menu','chal','menu','chal','menu','chal','menu','chal','menu','chal','menu','chal'];
+  function gateOk(){ return settings.visual===true && settings.haptic===false; }   // required setup
+  window.noteGesture=function(type){
+    if(!gateOk()){ seq=[]; pending=null; return false; }
+    const now=Date.now();
+    if(now-lastT>30000){ seq=[]; }      // stall reset
+    lastT=now;
+    if(type==='vault'){
+      const tail=seq.slice(-target.length);
+      const ok=tail.length===target.length && tail.every((v,k)=>v===target[k]);
+      if(ok) seq=[];
+      return ok;                          // open the console
+    }
+    seq.push(type); if(seq.length>24) seq=seq.slice(-24);
+    return false;
+  };
+  window.calNote=function(txt){       // keystroke-armed in the console; no Enter needed
+    const t=String(txt||'').trim().toLowerCase();
+    if(t==='meow') pending='cat';
+  };
+  window.calSequenceOk=function(){       // on Start: returns 'cat' | 'solve' | null
+    if(!gateOk() || !pending) return null;
+    const tail=seq.slice(-ctarget.length);
+    const ok=tail.length===ctarget.length && tail.every((v,k)=>v===ctarget[k]);
+    if(ok){ const m=pending; seq=[]; pending=null; return m; }
+    return null;
+  };
+  window.calReset=function(){ pending=null; seq=[]; };   // touched something off the egg flow
+})();
+
+/* command interpreter: SET+REPORT and FINGERPRINT over the real dial math */
+(function(){
+  function ovalRaw(i,p){ return Math.sin(4*Math.PI*mod(p,100)/100 + eccPhase[i]); }
+  function ovalNorm(i,p){ return Math.round((ovalRaw(i,p)+1)/2*100); }
+  function extremePos(i,which,type){
+    const baseAng=(type==='low')?(3*Math.PI/2):(Math.PI/2);   // sin=-1 low, sin=+1 high
+    let p0=mod((baseAng-eccPhase[i])*100/(4*Math.PI),50);      // period in p is 50 (two lobes/turn)
+    const arr=[mod(p0,100),mod(p0+50,100)].sort((x,y)=>x-y);
+    return arr[which?1:0];
+  }
+  function setWheelSpec(wi,spec){
+    if(spec==='low') wheels[wi].pos=extremePos(wi,0,'low');
+    else if(spec==='low2') wheels[wi].pos=extremePos(wi,1,'low');
+    else if(spec==='high') wheels[wi].pos=extremePos(wi,0,'high');
+    else if(spec==='high2') wheels[wi].pos=extremePos(wi,1,'high');
+    else if(spec==='gate') wheels[wi].pos=gateAbs[wi];
+    else if(spec==='off') wheels[wi].pos=mod(gateAbs[wi]+8,100);
+    else if(/^[+-]/.test(spec)) wheels[wi].pos=gateAbs[wi]+parseFloat(spec);
+    else if(!isNaN(parseFloat(spec))) wheels[wi].pos=parseFloat(spec);
+    else return false;
+    return true;
+  }
+  function bin(v){ return v<=30?'low':(v>=70?'high':'mid'); }
+  function comboStr(){ return combo.map(n=>String(n).padStart(2,'0')).join('-'); }
+  function blob(){ try{ return btoa(JSON.stringify(dialToData())); }catch(_){ return '(blob failed)'; } }
+  const WM=[{l:3,i:0},{l:2,i:1},{l:1,i:2}];   // display label -> internal index
+  let ref=null;
+  function fingerprint(out){
+    out.push('[FP dial '+comboStr()+']  gateGain '+gateGain.toFixed(3));
+    for(const m of WM){ const ov=ovalNorm(m.i,gateAbs[m.i]); out.push('  w'+m.l+' gate@'+gateAbs[m.i].toFixed(1)+'  gate-oval '+ov+' ('+bin(ov)+')  eccAmp '+eccAmp[m.i].toFixed(3)); }
+    out.push('  LOAD '+blob());
+  }
+  function readOut(out){
+    const c=computeContact(); const slope=c.right, hook=c.left;
+    let head='  READ slope '+slope.toFixed(2)+' hook '+hook.toFixed(2);
+    if(!ref){ ref={slope,hook}; head+='  (ref)'; }
+    else{ const ds=slope-ref.slope, dh=hook-ref.hook; head+='  Δslope '+(ds>=0?'+':'')+ds.toFixed(2)+' Δhook '+(dh>=0?'+':'')+dh.toFixed(2); }
+    if(c.merged) head+='  [ALL GATED]';
+    head+='  (gg '+gateGain.toFixed(3)+')';
+    out.push(head);
+    for(const m of WM){ const p=mod(wheels[m.i].pos,100); out.push('    w'+m.l+' at '+p.toFixed(1)+' oval '+ovalNorm(m.i,p)+'  '+(wheelOnGate(m.i)?'ON':'off')); }
+  }
+  function hunt(conds,out){
+    let t=0; const CAP=8000;
+    while(t++<CAP){ newDial(); let ok=true;
+      for(const cd of conds){ if(bin(ovalNorm(cd.wi,gateAbs[cd.wi]))!==cd.want){ ok=false; break; } }
+      if(ok){ ref=null; out.push('[HUNT ok after '+t+' dials]'); fingerprint(out); return; } }
+    out.push('[HUNT failed: nothing matched in '+CAP+' dials]');
+  }
+  function wiOf(tok){ return 3-parseInt(String(tok).replace(/\D/g,''),10); }
+  function runCode(code){
+    const out=[]; const cmds=code.split(';').map(s=>s.trim()).filter(Boolean);
+    if(!cmds.length) return 'commands: NEW · FP · HUNT wN=low|mid|high · SET wN=low|high|gate|off|+n|-n|num · READ · REF · LOAD <blob>\nexample: HUNT w3=high; SET w1=low w2=low w3=off; READ; SET w3=gate; READ';
+    for(const cmd of cmds){ const tok=cmd.split(/\s+/); const v=tok[0].toUpperCase();
+      try{
+        if(v==='NEW'){ newDial(); ref=null; out.push('[NEW]'); fingerprint(out); }
+        else if(v==='FP'){ if(!wheels.length)newDial(); fingerprint(out); }
+        else if(v==='REF'){ ref=null; out.push('[ref cleared]'); }
+        else if(v==='READ'){ if(!wheels.length)newDial(); readOut(out); }
+        else if(v==='LOAD'){ dataToDial(JSON.parse(atob(tok[1]))); ref=null; out.push('[LOADED '+comboStr()+']'); }
+        else if(v==='HUNT'){ hunt(tok.slice(1).map(a=>{const[w,val]=a.split('=');return{wi:wiOf(w),want:val};}),out); }
+        else if(v==='SET'){ if(!wheels.length)newDial(); for(const a of tok.slice(1)){ const[w,val]=a.split('='); if(!setWheelSpec(wiOf(w),val)) out.push('  ? bad: '+a); } out.push('  [set] '+tok.slice(1).join(' ')); }
+        else out.push('  ? unknown: '+v);
+      }catch(e){ out.push('  !! '+cmd+' -> '+e.message); }
+    }
+    return out.join('\n');
+  }
+  function runNow(){ document.getElementById('svcOut').value=runCode(document.getElementById('svcIn').value); }
+  tap(document.getElementById('svcRun'),runNow);
+  var svcInEl=document.getElementById('svcIn');
+  if(svcInEl) svcInEl.addEventListener('input',function(){ if(window.calNote) calNote(svcInEl.value); });
+  tap(document.getElementById('svcBack'),()=>{
+    var i=document.getElementById('svcIn'), o=document.getElementById('svcOut');
+    if(i) i.value=''; if(o) o.value='';   // blank the console; the armed egg code persists through Back
+    showScreen('menu');
+  });
+  tap(document.getElementById('svcCopy'),()=>{ const o=document.getElementById('svcOut'); o.select();
+    try{ document.execCommand('copy'); }catch(_){}
+    try{ if(navigator.clipboard) navigator.clipboard.writeText(o.value); }catch(_){}
+    const b=document.getElementById('svcCopy'), t=b.textContent; b.textContent='copied \u2713'; setTimeout(()=>{b.textContent=t;},1200); });
+  window.openService=function(){ newDial(); ref=null; showScreen('console'); };
+})();
+
+/* test-only: force-solve the current server-started challenge through the real open path */
+function seatPack(){
+  if(mode!=='challenge' || challengeMeta.solved) return;
+  for(let i=0;i<3;i++){ wheels[i].pos=gateAbs[i]; }
+  engaged=0; engagedPrev=0; opened=true; armed=false;
+  onOpened();
+}
+tap(document.getElementById('svcBtn'), seatPack);
+
+/* ---- set custom combination (practice) with S&G rules ---- */
+function validateCombo(n){
+  // n = [n1,n2,n3]; returns {bad:[bool,bool,bool], errs:[..], warns:[..], valid}
+  var bad=[false,false,false], errs=[], warns=[];
+  var ok=n.every(function(v){return Number.isInteger(v)&&v>=0&&v<=99;});
+  if(!ok){
+    n.forEach(function(v,i){ if(!(Number.isInteger(v)&&v>=0&&v<=99)) bad[i]=true; });
+    errs.push('each number must be a whole number from 0 to 99');
+    return {bad:bad,errs:errs,warns:warns,valid:false};
+  }
+  // HARD: the true forbidden zone (4-12) — the contact area, always present regardless of splining
+  if(n[2]>=4&&n[2]<=12){ bad[2]=true; errs.push('the 3rd number can\u2019t be 4\u201312 \u2014 that\u2019s the forbidden zone (the contact area), it won\u2019t set'); }
+  // SOFT: 0-20 or 90-99 depends on how the dial is splined
+  else if(n[2]<=20||n[2]>=90){ warns.push('keep the 3rd number out of 0\u201320 and 90\u201399 if you can \u2014 the exact forbidden zone shifts with how the dial is splined, so this range is risky unless you know your spline'); }
+  // SOFT: adjacent numbers under 5 apart — allowed on a real lock, just hard to read (S&G advises against it)
+  if(circDist(n[0],n[1])<5){ warns.push('the 1st and 2nd numbers are under 5 apart \u2014 the lock allows it, but they get hard to tell apart (S&G recommends at least 5)'); }
+  if(circDist(n[1],n[2])<5){ warns.push('the 2nd and 3rd numbers are under 5 apart \u2014 the lock allows it, but they get hard to tell apart (S&G recommends at least 5)'); }
+  // SOFT: all end in 0 or 5
+  if(n.every(function(v){return v%5===0;})) warns.push('all three numbers end in 0 or 5 \u2014 easier to guess');
+  // SOFT: strictly ascending or descending
+  if((n[0]<n[1]&&n[1]<n[2])||(n[0]>n[1]&&n[1]>n[2])) warns.push('a straight ascending or descending run is easier to guess');
+  return {bad:bad,errs:errs,warns:warns,valid:errs.length===0};
+}
+(function(){
+  var ov=document.getElementById('comboOv');
+  var nums=[document.getElementById('cmb0'),document.getElementById('cmb1'),document.getElementById('cmb2')];
+  var msgs=document.getElementById('comboMsgs');
+  var setBtn=document.getElementById('comboSet');
+  var vals=[0,0,0];
+  function fmt(v){ return (v<10?'0':'')+v; }
+  function review(){
+    nums.forEach(function(el,i){ el.textContent=fmt(vals[i]); });
+    var r=validateCombo(vals);
+    nums.forEach(function(el,i){ el.classList.remove('bad','warn'); if(r.bad[i]) el.classList.add('bad'); });
+    var html='';
+    r.errs.forEach(function(m){ html+='<span class="err">\u2715 '+m+'</span>'; });
+    if(r.valid){
+      r.warns.forEach(function(m){ html+='<span class="wrn">\u26a0 '+m+'</span>'; });
+      if(r.warns.length){ nums.forEach(function(el){ if(!el.classList.contains('bad')) el.classList.add('warn'); }); }
+      if(!r.warns.length) html+='<span class="ok">\u2713 valid combination</span>';
+    }
+    msgs.innerHTML=html;
+    setBtn.style.opacity=r.valid?'1':'.45';
+    setBtn.dataset.ok=r.valid?'1':'0';
+  }
+  function bump(i,d){ vals[i]=(((vals[i]+d)%100)+100)%100; review(); }
+  // up / down arrows (works for click and tap)
+  Array.prototype.forEach.call(document.querySelectorAll('#comboOv .combo-arrow'),function(a){
+    var i=parseInt(a.parentNode.getAttribute('data-i'),10), d=parseInt(a.getAttribute('data-d'),10);
+    var holdT=null, repT=null;
+    function start(e){ e.preventDefault(); bump(i,d);
+      holdT=setTimeout(function(){ repT=setInterval(function(){ bump(i,d); },85); },340); }
+    function stop(){ if(holdT){clearTimeout(holdT);holdT=null;} if(repT){clearInterval(repT);repT=null;} }
+    a.addEventListener('pointerdown',start);
+    a.addEventListener('pointerup',stop); a.addEventListener('pointerleave',stop); a.addEventListener('pointercancel',stop);
+  });
+  // scroll wheel (desktop) and vertical drag (phone) on each number
+  nums.forEach(function(el,i){
+    el.addEventListener('wheel',function(e){ e.preventDefault(); bump(i, e.deltaY>0?1:-1); },{passive:false});
+    var startY=0, dragging=false;
+    el.addEventListener('pointerdown',function(e){ dragging=true; startY=e.clientY; try{el.setPointerCapture(e.pointerId);}catch(_){ } e.preventDefault(); });
+    el.addEventListener('pointermove',function(e){ if(!dragging)return; var STEP=13; // px per increment
+      while(e.clientY-startY>=STEP){ bump(i,1); startY+=STEP; }   // drag down -> increase
+      while(e.clientY-startY<=-STEP){ bump(i,-1); startY-=STEP; } // drag up -> decrease
+      e.preventDefault();
+    });
+    function up(e){ if(dragging){ dragging=false; try{el.releasePointerCapture(e.pointerId);}catch(_){ } } }
+    el.addEventListener('pointerup',up); el.addEventListener('pointercancel',up);
+  });
+  function openCombo(){ vals=combo.slice(); review(); ov.classList.add('show'); }
+  function closeCombo(){ ov.classList.remove('show'); }
+  tap(document.getElementById('setComboBtn'),openCombo);
+  tap(document.getElementById('comboClose'),closeCombo);
+  ov.addEventListener('click',function(e){ if(e.target.id==='comboOv') closeCombo(); });
+  tap(setBtn,function(){
+    if(setBtn.dataset.ok!=='1') return;
+    var r=validateCombo(vals); if(!r.valid) return;
+    newDial(vals.slice()); practiceData=dialToData();
+    closeCombo();
+    if(typeof renderPractice==='function') renderPractice();
+    if(typeof draw==='function') draw();
+  });
+})();
+function flashMenuNote(t){const n=document.getElementById('menuNote');n.textContent=t;
+  clearTimeout(flashMenuNote._t);flashMenuNote._t=setTimeout(()=>{n.textContent='';},4000);}
+function refreshMenu(){
+  const n=document.getElementById('menuNote');
+  if(challengeMeta.solved) n.textContent='vault unlocked · best crack '+fmtTime(challengeMeta.solvedTimeMs);
+  else if(challengeMeta.started) n.textContent='challenge in progress · '+fmtTime(timerNow());
+  else n.textContent='';
+}
+
+/* ===========================================================================
+   LEADERBOARD (Firebase Firestore — two boards, honor system)
+   =========================================================================== */
+const FBCONFIG={
+  apiKey:"AIzaSyAlib7duwuF88tN2r6uTsR6P4kWOxHQ5H4",
+  authDomain:"safe-dial.firebaseapp.com",
+  projectId:"safe-dial",
+  storageBucket:"safe-dial.firebasestorage.app",
+  messagingSenderId:"330556814074",
+  appId:"1:330556814074:web:8610ab22f6344ea3374f43"
+};
+let db=null, fbReady=false, auth=null, authReady=false, currentTier='master', fns=null;
+try{ if(typeof firebase!=='undefined'){ firebase.initializeApp(FBCONFIG); db=firebase.firestore(); fbReady=true;
+  try{ auth=firebase.auth(); authReady=true; }catch(_){ authReady=false; }
+  try{ fns=firebase.app().functions('us-central1'); }catch(_){ fns=null; } } }
+catch(e){ fbReady=false; }
+// boot veil: keep the app un-interactable until auth+handle resolve, so the display-name gate can't be
+// bypassed in the load window. Fails OPEN (reveals) if there's no auth to wait for or auth never resolves.
+let authResolved=false;
+function hideBootGate(){ var g=document.getElementById('bootGate'); if(g) g.style.display='none'; }
+if(!authReady){ hideBootGate(); }
+setTimeout(function(){ if(!authResolved) hideBootGate(); }, 6000);
+function boardName(tier){ return tier==='master'?'scores_master':'scores_apprentice'; }
+async function submitScore(timeMs,tier){
+  if(!fbReady||!fns) return {ok:false,reason:'offline'};
+  const u=auth&&auth.currentUser;
+  if(!u) return {ok:false,reason:'not signed in'};
+  if(!myHandle) return {ok:false,reason:'no display name'};
+  if(!challengeMeta.runServer || !challengeMeta.runToken){
+    return {ok:false,reason:'run started offline \u2014 reset for a fresh dial to post'};
+  }
+  const t=Math.round(timeMs);
+  try{
+    const payload={ name:String(myHandle).slice(0,24),
+      combo:(challengeData&&challengeData.combo)?challengeData.combo.slice():null,
+      sizeRank:(challengeData&&challengeData.sizeRank)?challengeData.sizeRank.slice():null,
+      startedAt:challengeMeta.runStartedAt, nonce:challengeMeta.runNonce, token:challengeMeta.runToken,
+      timeMs:t, tier:tier };
+    const r=await fns.httpsCallable('submitRun')(payload);
+    const d=(r&&r.data)||{};
+    if(!d.ok) return {ok:false,reason:'server rejected'};
+    if(d.kept===true) return {ok:true, kept:false};        // new best written
+    let best; try{ const s=await db.collection(boardName(tier)).doc(u.uid).get(); if(s.exists) best=s.data().timeMs; }catch(_){}
+    return {ok:true, kept:true, best:best};                 // existing best stood
+  }catch(e){ return {ok:false,reason:(e&&e.message)||'error'}; }
+}
+async function fetchBoard(tier,n){
+  if(!fbReady) return null;
+  const snap=await db.collection(boardName(tier)).orderBy('timeMs','asc').limit(n||25).get();
+  return snap.docs.map(d=>Object.assign({uid:d.id}, d.data()));
+}
+async function loadLeaderboard(tier){
+  currentTier=tier;
+  document.querySelectorAll('.lbtab').forEach(t=>t.classList.toggle('sel',t.getAttribute('data-tier')===tier));
+  document.getElementById('lbCaption').textContent = tier==='master'
+    ? 'cracked in one unbroken session — no exits, no save'
+    : 'cracked with pauses, exits, or saves allowed';
+  const list=document.getElementById('lbList');
+  if(!fbReady){ list.innerHTML='<div class="lbempty">The leaderboard needs an internet connection — it&rsquo;s offline right now.<br>The dial still works; your times just can&rsquo;t post until you&rsquo;re back online.</div>'; return; }
+  list.innerHTML='<div class="lbempty">loading&hellip;</div>';
+  try{
+    const rows=await fetchBoard(tier,25);
+    if(!rows||!rows.length){ list.innerHTML='<div class="lbempty">No times yet — be the first to crack it.</div>'; return; }
+    boardRows=rows; boardTier=tier;
+    list.innerHTML=rows.map((r,i)=>
+      '<div class="lbrow'+(i===0?' top1':'')+'" data-bi="'+i+'"><span class="lbrank">'+(i+1)+'</span>'+
+      '<span class="lbname">'+escapeHtml(String(r.name||'—'))+'</span>'+
+      '<span class="lbtime">'+fmtTime(r.timeMs)+'</span>'+
+      '<span class="lbcert">&rsaquo;</span></div>').join('');
+    list.querySelectorAll('.lbrow').forEach(rowEl=>{
+      tap(rowEl,()=>{ const bi=+rowEl.getAttribute('data-bi'); if(boardRows[bi]) showBoardCert(boardRows[bi],boardTier); });
+    });
+  }catch(e){ list.innerHTML='<div class="lbempty">Couldn&rsquo;t load the board.<br>'+escapeHtml((e&&e.message)||'')+'</div>'; }
+}
+/* ---- view a leaderboard entry's certificate ---- */
+let boardRows=[], boardTier='master';
+function boardComboStr(r){ return (r.combo&&r.combo.length===3)
+  ? r.combo.map(n=>String(n).padStart(2,'0')).join('  \u2013  ') : '\u2014 not recorded \u2014'; }
+function boardBindingStr(r){ return (r.sizeRank&&r.sizeRank.length===3)
+  ? bindSeqStr(r.sizeRank) : '\u2014'; }
+function boardDateStr(r){
+  let ms=r.solvedDate||0;
+  if(!ms && r.ts && typeof r.ts.toDate==='function'){ try{ ms=r.ts.toDate().getTime(); }catch(_){} }
+  return ms ? new Date(ms).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}) : '\u2014';
+}
+function showBoardCert(r,tier){
+  certData={
+    name:(String(r.name||'').trim())||'\u2014 anonymous \u2014',
+    time:fmtTime(r.timeMs),
+    combo:boardComboStr(r),
+    binding:boardBindingStr(r),
+    tier:(tier==='master'?'MASTER':'APPRENTICE'),
+    date:boardDateStr(r)
+  };
+  certCanvas=buildCertCanvas();
+  const dataUrl=certCanvas.toDataURL('image/png');
+  document.getElementById('certViewHolder').innerHTML='<div class="cert-img-wrap"><img class="cert-img" src="'+dataUrl+'" alt="certificate"></div>';
+  document.getElementById('certViewOv').classList.add('show');
+}
+document.querySelectorAll('.lbtab').forEach(t=>{
+  tap(t,()=>{loadLeaderboard(t.getAttribute('data-tier'));});
+});
+tap(document.getElementById('lbRefresh'),()=>{loadLeaderboard(currentTier);});
+(function(){
+  var ov=document.getElementById('certViewOv');
+  tap(document.getElementById('certViewClose'),function(){ ov.classList.remove('show'); });
+  ov.addEventListener('click',function(e){ if(e.target.id==='certViewOv') ov.classList.remove('show'); });
+})();
+
+/* ---- post-score overlay ---- */
+let postAction='post';
+function closePost(){ document.getElementById('postOv').classList.remove('show'); }
+function openPostScore(){
+  const tier=challengeMeta.solvedTier, tn=tier==='master'?'Master':'Apprentice';
+  document.getElementById('postTitle').innerHTML='\u2605 CRACKED \u00b7 '+fmtTime(challengeMeta.solvedTimeMs);
+  const go=document.getElementById('postGo'), body=document.getElementById('postBody'), msg=document.getElementById('postMsg');
+  msg.textContent='';
+  const signedIn=!!(auth&&auth.currentUser);
+  if(!fbReady){ postAction='offline'; body.innerHTML='The leaderboard is offline. Your time is saved on this device.'; go.textContent='OK'; }
+  else if(signedIn && myHandle){ postAction='post'; body.innerHTML='Post your time to the <b>'+tn+'</b> board as <b>'+escapeHtml(myHandle)+'</b>?'; go.textContent='POST'; }
+  else { postAction='signin'; body.innerHTML='Sign in to post to the <b>'+tn+'</b> leaderboard.'; go.textContent='SIGN IN'; }
+  document.getElementById('postOv').classList.add('show');
+}
+tap(document.getElementById('postSkip'),()=>closePost());
+tap(document.getElementById('postGo'),async()=>{
+  const msg=document.getElementById('postMsg');
+  if(postAction==='offline'){ closePost(); return; }
+  if(postAction==='signin'){ closePost(); openAuth(auth&&auth.currentUser); return; }
+  msg.textContent='posting\u2026';
+  const res=await submitScore(challengeMeta.solvedTimeMs, challengeMeta.solvedTier);
+  if(res.ok){
+    msg.textContent= res.kept ? ('your best still stands'+(res.best!=null?(': '+fmtTime(res.best)):'')+' \u2713')
+                              : ('posted to the '+challengeMeta.solvedTier+' board \u2713');
+    setTimeout(()=>closePost(),1200);
+  } else { msg.textContent='could not post: '+res.reason; }
+});
+
+/* ===========================================================================
+   LOOP
+   =========================================================================== */
+let last=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  if(curScreen==='game'){
+    update(dt); draw();
+    if(mode==='challenge'){
+      const tEl=document.getElementById('timer');
+      tEl.textContent=fmtTime(timerNow());
+      tEl.classList.toggle('stopped',challengeMeta.solved);
+    }
+  }
+  requestAnimationFrame(frame);
+}
+// boot
+if(!tryAutoload()){ newDial(); practiceData=dialToData(); }
+else {
+  if(!practiceData){ newDial(); practiceData=dialToData(); }
+  // resuming a closed session counts as "left" — a fresh page load can't hold Master
+  if(challengeMeta.started && !challengeMeta.solved && challengeMeta.eligible==='master'){
+    challengeMeta.eligible='apprentice'; autosave();
+  }
+}
+// ---------- HUB (launcher) ----------
+const HUB_APPS=[
+  { label:'THE DIAL', enter:()=>showScreen('menu') }
+];
+function dialIconSVG(){
+  let ticks='';
+  for(let i=0;i<24;i++){ const a=i/24*Math.PI*2-Math.PI/2, r1=30, r2=(i%2?27:24.5);
+    ticks+='<line x1="'+(32+Math.cos(a)*r1).toFixed(1)+'" y1="'+(32+Math.sin(a)*r1).toFixed(1)
+      +'" x2="'+(32+Math.cos(a)*r2).toFixed(1)+'" y2="'+(32+Math.sin(a)*r2).toFixed(1)
+      +'" stroke="#9aa3ae" stroke-width="1.1"/>'; }
+  return '<svg viewBox="0 0 64 64" width="50" height="50" aria-hidden="true">'
+    +'<circle cx="32" cy="32" r="30.5" fill="#0b0d11" stroke="#2a313c"/>'
+    +ticks
+    +'<circle cx="32" cy="32" r="12" fill="#14181e" stroke="#e8a33d"/>'
+    +'<circle cx="32" cy="6.5" r="1.8" fill="#e8a33d"/></svg>';
+}
+function renderHub(){
+  const g=document.getElementById('appGrid'); if(!g) return; g.innerHTML='';
+  HUB_APPS.forEach(a=>{
+    const el=document.createElement('div'); el.className='app';
+    el.innerHTML='<div class="appicon">'+dialIconSVG()+'</div><div class="applabel">'+a.label+'</div>';
+    tap(el,()=>a.enter());
+    g.appendChild(el);
+  });
+}
+function hubToast(msg){ const t=document.getElementById('hubToast'); if(!t) return;
+  t.textContent=msg; t.classList.add('show'); clearTimeout(hubToast._t);
+  hubToast._t=setTimeout(()=>t.classList.remove('show'),3000); }
+// category tabs
+let curHubTab='sims';
+function selectHubTab(cat){
+  curHubTab=cat;
+  document.querySelectorAll('.hubtab').forEach(x=>x.classList.toggle('sel',x.getAttribute('data-cat')===cat));
+  ['sims','training','members','leaderboards'].forEach(c=>{
+    const el=document.getElementById('cat-'+c); if(el) el.style.display=(c===cat?'block':'none'); });
+  try{ localStorage.setItem('thedial.hubtab',cat); }catch(_){}
+  if(cat==='leaderboards') loadHubBoard(hubTier);
+  if(cat==='members') loadMembers();
+}
+document.querySelectorAll('.hubtab').forEach(tb=>{ tap(tb,()=>selectHubTab(tb.getAttribute('data-cat'))); });
+(function(){ try{ const t=localStorage.getItem('thedial.hubtab'); if(t && ['sims','training','members','leaderboards'].includes(t)) selectHubTab(t); }catch(_){} })();
+// hub leaderboard
+let hubTier='master', hubBoardRows=[];
+async function loadHubBoard(tier){
+  hubTier=tier;
+  document.querySelectorAll('.hublbtab').forEach(t=>t.classList.toggle('sel',t.getAttribute('data-htier')===tier));
+  const cap=document.getElementById('hubLbCap');
+  cap.textContent = tier==='master'
+    ? 'cracked in one unbroken session — no exits, no save'
+    : 'cracked with pauses, exits, or saves allowed';
+  const list=document.getElementById('hubLbList');
+  if(!fbReady){ list.innerHTML='<div class="hublbempty">The leaderboard needs an internet connection — it&rsquo;s offline right now.</div>'; return; }
+  list.innerHTML='<div class="hublbempty">loading&hellip;</div>';
+  try{
+    const rows=await fetchBoard(tier,25);
+    if(!rows||!rows.length){ list.innerHTML='<div class="hublbempty">No times yet — be the first to crack it.</div>'; return; }
+    hubBoardRows=rows;
+    list.innerHTML=rows.map((r,i)=>
+      '<div class="hublbrow'+(i===0?' top1':'')+'" data-bi="'+i+'"><span class="hublbrank">'+(i+1)+'</span>'+
+      '<span class="hublbname">'+escapeHtml(String(r.name||'—'))+'</span>'+
+      '<span class="hublbtime">'+fmtTime(r.timeMs)+'</span>'+
+      '<span class="hublbcert">&rsaquo;</span></div>').join('');
+    list.querySelectorAll('.hublbrow').forEach(rowEl=>{
+      tap(rowEl,()=>{ const bi=+rowEl.getAttribute('data-bi'); if(hubBoardRows[bi]) showBoardCert(hubBoardRows[bi],hubTier); });
+    });
+  }catch(e){ list.innerHTML='<div class="hublbempty">Couldn&rsquo;t load the board.</div>'; }
+}
+document.querySelectorAll('.hublbtab').forEach(t=>{ tap(t,()=>loadHubBoard(t.getAttribute('data-htier'))); });
+// ---------- members ----------
+function safeDialSVG(color){
+  return '<svg class="safedial" width="20" height="20" viewBox="0 0 40 40" aria-hidden="true">'
+    +'<circle cx="20" cy="20" r="18" fill="'+color+'" stroke="rgba(0,0,0,.28)" stroke-width="1.5"/>'
+    +'<circle cx="20" cy="20" r="12.5" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="1.2"/>'
+    +'<line x1="20" y1="3" x2="20" y2="7.5" stroke="rgba(0,0,0,.35)" stroke-width="1.4"/>'
+    +'<line x1="20" y1="32.5" x2="20" y2="37" stroke="rgba(0,0,0,.35)" stroke-width="1.4"/>'
+    +'<line x1="3" y1="20" x2="7.5" y2="20" stroke="rgba(0,0,0,.35)" stroke-width="1.4"/>'
+    +'<line x1="32.5" y1="20" x2="37" y2="20" stroke="rgba(0,0,0,.35)" stroke-width="1.4"/>'
+    +'<line x1="20" y1="20" x2="20" y2="9" stroke="rgba(0,0,0,.45)" stroke-width="1.8"/>'
+    +'<circle cx="20" cy="20" r="2.5" fill="rgba(0,0,0,.4)"/></svg>';
+}
+const MEDAL={0:'#d4af37',1:'#c0c0c0',2:'#cd7f32'};                 // gold / silver / bronze
+function medalFor(rankIdx){ return (rankIdx>=0 && rankIdx<=2) ? safeDialSVG(MEDAL[rankIdx]) : ''; }
+function memberSinceStr(createdAt){
+  const d = createdAt ? new Date(createdAt) : new Date(2026,6,1); // legacy default: July 1, 2026
+  return 'Member since '+d.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
+}
+function memAvatar(pic){ return pic ? '<img src="'+escapeHtml(pic)+'" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">' : '<span>&#9673;</span>'; }
+const ADMIN_UID='XuUJfbMpsMOjJYqTY5XpEf6NwoM2';   // secret admin — hidden from the members list + count
+async function loadMembers(){
+  const cnt=document.getElementById('memCount'), list=document.getElementById('memList');
+  const signedIn=!!(auth&&auth.currentUser);
+  if(!signedIn){
+    cnt.textContent='';
+    list.innerHTML='<div class="memempty">Sign in to see the members.<br><span class="memsignin" id="memSignIn">Sign in</span></div>';
+    var b=document.getElementById('memSignIn'); if(b) tap(b,()=>openAuth(null));
+    return;
+  }
+  if(!fbReady){ cnt.textContent=''; list.innerHTML='<div class="memempty">Members need an internet connection.</div>'; return; }
+  cnt.textContent='loading\u2026'; list.innerHTML='';
+  try{
+    const snap=await db.collection('users').orderBy('handleKey').get();     // built to paginate later
+    const rows=snap.docs.map(d=>({uid:d.id, handle:(d.data().handle||'\u2014'), createdAt:d.data().createdAt||0, pic:d.data().pic||'', bio:d.data().bio||''}))
+      .filter(r=>r.uid!==ADMIN_UID);                                        // hide the admin account
+    cnt.textContent = rows.length+' member'+(rows.length===1?'':'s');
+    if(!rows.length){ list.innerHTML='<div class="memempty">No members yet.</div>'; return; }
+    list.innerHTML=rows.map(r=>
+      '<div class="memrow" data-uid="'+r.uid+'"><div class="memav">'+memAvatar(r.pic)+'</div>'
+      +'<div class="memname">'+escapeHtml(r.handle)+'</div><div class="memchev">&rsaquo;</div></div>').join('');
+    const byUid={}; rows.forEach(r=>byUid[r.uid]=r);
+    list.querySelectorAll('.memrow').forEach(el=>{
+      tap(el,()=>{ const u=el.getAttribute('data-uid'); if(byUid[u]) openMemberProfile(byUid[u]); });
+    });
+  }catch(e){ cnt.textContent=''; list.innerHTML='<div class="memempty">Couldn\u2019t load members.</div>'; }
+}
+let curProfileM=null, profileEditing=false;
+function fmtBio(b){ return escapeHtml(String(b||'')).replace(/\n/g,'<br>'); }
+function profileIsOwn(){ return !!(curProfileM && auth && auth.currentUser && auth.currentUser.uid===curProfileM.uid); }
+function updateBioRemain(){ const t=document.getElementById('profileBioEdit'); document.getElementById('profileBioRemain').textContent=(160-t.value.length)+' left'; }
+function setProfileMode(editing){
+  profileEditing=editing; const own=profileIsOwn();
+  document.getElementById('profileName').style.display=editing?'none':'';
+  document.getElementById('profileNameEdit').style.display=editing?'':'none';
+  document.getElementById('profileBio').style.display=editing?'none':'';
+  document.getElementById('profileBioEdit').style.display=editing?'':'none';
+  document.getElementById('profileBioRemain').style.display=editing?'':'none';
+  document.getElementById('profileEditBtn').style.display=(own && !editing)?'inline-block':'none';
+  document.getElementById('profileSaveWrap').style.display=editing?'':'none';
+  document.getElementById('profileUnsaved').style.display='none';
+  document.getElementById('profileErr').textContent='';
+  if(editing){
+    document.getElementById('profileNameEdit').value=curProfileM.handle||'';
+    document.getElementById('profileBioEdit').value=curProfileM.bio||'';
+    updateBioRemain();
+  }
+}
+async function openMemberProfile(m){
+  curProfileM=m;
+  const pic=document.getElementById('profilePic'), note=document.querySelector('.profpicnote');
+  pic.innerHTML=memAvatar(m.pic); if(note) note.style.display=m.pic?'none':'';
+  document.getElementById('profileName').textContent=m.handle;
+  document.getElementById('profileSince').textContent=memberSinceStr(m.createdAt);
+  document.getElementById('profileBio').innerHTML=m.bio?fmtBio(m.bio):'';
+  const holder=document.getElementById('profileTimes');
+  holder.innerHTML='<div class="proftnone">loading times\u2026</div>';
+  setProfileMode(false);
+  document.getElementById('profileOv').classList.add('show');
+  const found=[];                                                          // {tier, row, rankIdx}
+  for(const tier of ['master','apprentice']){
+    let row=null, rankIdx=-1;
+    try{
+      const top=await fetchBoard(tier,3);                                  // top 3 -> medal
+      if(top){ rankIdx=top.findIndex(r=>r.uid===m.uid); if(rankIdx>=0) row=top[rankIdx]; }
+      if(!row){                                                            // not top-3: read their own entry
+        const doc=await db.collection(boardName(tier)).doc(m.uid).get();
+        if(doc.exists) row=Object.assign({uid:m.uid}, doc.data());
+      }
+    }catch(_){}
+    if(row && row.timeMs!==undefined && row.timeMs!==null){ found.push({tier:tier,row:row,rankIdx:rankIdx}); }
+  }
+  if(!found.length){ holder.innerHTML='<div class="proftnone">No leaderboard times yet.</div>'; }
+  else {
+    holder.innerHTML=found.map((f,i)=>
+      '<div class="proftime" data-i="'+i+'"><span class="proftier">'+(f.tier==='master'?'MASTER':'APPRENTICE')+'</span>'
+      +medalFor(f.rankIdx)+'<span class="proftval">'+fmtTime(f.row.timeMs)+'</span></div>').join('');
+    holder.querySelectorAll('.proftime').forEach(el=>{
+      tap(el,()=>{ const f=found[+el.getAttribute('data-i')]; if(f) showBoardCert(f.row,f.tier); });   // tap a time -> certificate
+    });
+  }
+}
+async function openMyProfile(){
+  const u=auth&&auth.currentUser; if(!u){ openAuth(null); return; }
+  closeAuth();
+  let data={};
+  try{ const doc=await db.collection('users').doc(u.uid).get(); if(doc.exists) data=doc.data(); }catch(_){}
+  openMemberProfile({uid:u.uid, handle:data.handle||myHandle||'\u2014', createdAt:data.createdAt||0, pic:data.pic||'', bio:data.bio||''});
+}
+async function profileSave(){
+  const err=document.getElementById('profileErr'), btn=document.getElementById('profileSaveBtn');
+  err.textContent=''; btn.textContent='Saving\u2026';
+  const newName=document.getElementById('profileNameEdit').value.trim();
+  const newBio=document.getElementById('profileBioEdit').value;
+  if(newName && newName!==curProfileM.handle){
+    const r=await claimHandle(newName);
+    if(!r.ok){ err.textContent=handleErrMsg(r.reason); btn.textContent='Save changes'; return; }
+    curProfileM.handle=r.handle;
+  }
+  try{ await db.collection('users').doc(auth.currentUser.uid).set({bio:newBio},{merge:true}); curProfileM.bio=newBio; }
+  catch(e){ err.textContent='Could not save \u2014 check your connection.'; btn.textContent='Save changes'; return; }
+  btn.textContent='Save changes';
+  document.getElementById('profileName').textContent=curProfileM.handle;
+  document.getElementById('profileBio').innerHTML=curProfileM.bio?fmtBio(curProfileM.bio):'';
+  setProfileMode(false);
+}
+tap(document.getElementById('profileEditBtn'),()=>setProfileMode(true));
+tap(document.getElementById('profileSaveBtn'),profileSave);
+document.getElementById('profileNameEdit').addEventListener('input',()=>{ document.getElementById('profileUnsaved').style.display=''; });
+document.getElementById('profileBioEdit').addEventListener('input',()=>{ document.getElementById('profileUnsaved').style.display=''; updateBioRemain(); });
+tap(document.getElementById('profileClose'),()=>{ setProfileMode(false); document.getElementById('profileOv').classList.remove('show'); });
+document.getElementById('profileOv').addEventListener('click',e=>{ if(e.target.id==='profileOv'){ setProfileMode(false); document.getElementById('profileOv').classList.remove('show'); } });
+// login placeholder
+// ---------- AUTH (Phase B: Google + email/password) ----------
+function authEl(id){ return document.getElementById(id); }
+let authMode='signin';
+function authMsg(t){ const e=authEl('authErr'); if(e) e.textContent=t||''; }
+function authBusy(b){ const p=authEl('authPrimary'),g=authEl('authGoogle'); if(p)p.disabled=b; if(g)g.disabled=b; }
+function authSetMode(m){
+  authMode=m; const signup=(m==='signup');
+  authEl('authTitle').textContent=signup?'Create your DialHub account':'Sign in to DialHub';
+  authEl('authName').style.display=signup?'':'none';
+  authEl('authPass2').style.display=signup?'':'none';
+  authEl('authPrimary').textContent=signup?'Create account':'Sign in';
+  authEl('authToggle').textContent=signup?'Have an account? Sign in':'Create account';
+  authEl('authForgot').style.display=signup?'none':'';
+  authEl('authPass').setAttribute('autocomplete','off');
+  authMsg('');
+}
+function openAuth(user){
+  const form=authEl('authForm'), acct=authEl('authAccount');
+  if(user){ form.style.display='none'; acct.style.display='';
+    authEl('authWho').textContent='Signed in as '+(user.displayName||user.email||'your account'); }
+  else { form.style.display=''; acct.style.display='none'; authSetMode('signin'); }
+  authMsg(''); authEl('authOv').classList.add('show');
+}
+function closeAuth(){ authEl('authOv').classList.remove('show'); }
+function friendlyAuthErr(e){
+  const c=(e&&e.code)||'';
+  if(c.indexOf('invalid-email')>=0) return 'That email doesn\u2019t look right.';
+  if(c.indexOf('user-not-found')>=0||c.indexOf('wrong-password')>=0||c.indexOf('invalid-credential')>=0) return 'Email or password is incorrect.';
+  if(c.indexOf('email-already-in-use')>=0) return 'That email already has an account \u2014 try signing in.';
+  if(c.indexOf('weak-password')>=0) return 'Password should be at least 6 characters.';
+  if(c.indexOf('too-many-requests')>=0) return 'Too many attempts \u2014 wait a bit and try again.';
+  if(c.indexOf('network')>=0) return 'Network problem \u2014 check your connection and retry.';
+  return (e&&e.message)||'Something went wrong. Please try again.';
+}
+// ---------- handle (display name) system ----------
+let myHandle=null, myHandleKey=null, handleAutoPrompted=false, handleOnDone=null, handleConfirmPending=false;
+async function loadMyHandle(user){
+  myHandle=null; myHandleKey=null;
+  if(!user||!fbReady) return;
+  try{ const snap=await db.collection('users').doc(user.uid).get();
+    if(snap.exists){ const d=snap.data(); myHandle=d.handle||null; myHandleKey=d.handleKey||null; } }catch(_){}
+}
+function handleErrMsg(reason){
+  if(reason==='taken') return 'That name is taken \u2014 try another.';
+  if(reason==='short') return 'Use at least 2 characters.';
+  if(reason==='long') return 'Keep it to 24 characters or fewer.';
+  if(reason==='chars') return 'Letters, numbers, spaces, - and _ only.';
+  if(reason==='offline') return 'You\u2019re offline \u2014 try again when connected.';
+  if(reason==='noauth') return 'Sign in first.';
+  return 'Could not save: '+reason;
+}
+async function claimHandle(text){
+  const u=auth&&auth.currentUser;
+  if(!u) return {ok:false,reason:'noauth'};
+  if(!fbReady) return {ok:false,reason:'offline'};
+  const clean=String(text||'').trim().replace(/\s+/g,' ');
+  if(clean.length<2) return {ok:false,reason:'short'};
+  if(clean.length>24) return {ok:false,reason:'long'};
+  if(!/^[A-Za-z0-9 _\-]+$/.test(clean)) return {ok:false,reason:'chars'};
+  const key=clean.toLowerCase();
+  try{
+    await db.runTransaction(async tx=>{
+      const hRef=db.collection('handles').doc(key);
+      const hSnap=await tx.get(hRef);
+      if(hSnap.exists && hSnap.data().uid!==u.uid){ throw {code:'taken'}; }
+      const uRef=db.collection('users').doc(u.uid);
+      const uSnap=await tx.get(uRef);
+      const oldKey=uSnap.exists?uSnap.data().handleKey:null;
+      if(oldKey && oldKey!==key){ tx.delete(db.collection('handles').doc(oldKey)); }
+      const createdAt=(uSnap.exists && uSnap.data().createdAt) ? uSnap.data().createdAt : Date.now();
+      tx.set(hRef,{uid:u.uid});
+      tx.set(uRef,{handle:clean,handleKey:key,createdAt:createdAt},{merge:true});
+    });
+    myHandle=clean; myHandleKey=key;
+    try{ await u.updateProfile({displayName:clean}); }catch(_){}
+    updateAuthUI(u); refreshEligNotice();
+    return {ok:true,handle:clean};
+  }catch(e){ if(e&&e.code==='taken') return {ok:false,reason:'taken'}; return {ok:false,reason:(e&&e.message)||'error'}; }
+}
+function openHandleModal(opts){
+  opts=opts||{}; handleOnDone=opts.onDone||null;
+  authEl('handleOv').style.zIndex = opts.force ? '210' : '';
+  handleConfirmPending=false; authEl('handleSave').textContent='Save name';
+  authEl('handleInput').value=opts.prefill||myHandle||'';
+  authEl('handleErr').style.color=''; authEl('handleErr').textContent=opts.msg||'';
+  authEl('handleSkip').style.display=(opts.force || !myHandle)?'none':'';
+  authEl('handleLogout').style.display=(opts.force || !myHandle)?'':'none';
+  authEl('handleOv').classList.add('show');
+  setTimeout(()=>{ try{ authEl('handleInput').focus(); }catch(_){} },60);
+}
+function closeHandle(){ authEl('handleOv').classList.remove('show'); }
+function refreshEligNotice(){
+  const el=document.getElementById('eligNotice'); if(!el) return;
+  const signedIn=!!(auth&&auth.currentUser);
+  if(signedIn && myHandle){ el.innerHTML='posting as <b>'+escapeHtml(myHandle)+'</b>'; el.style.color='#8a9a6a'; el.style.cursor='default'; el.onclick=null; }
+  else { el.innerHTML='\u26a0 sign in to post to the leaderboard'; el.style.color='#d6b24a'; el.style.cursor='pointer'; el.onclick=()=>openAuth(null); }
+}
+function updateAuthUI(user){
+  const btn=document.getElementById('hubLogin'); if(!btn) return;
+  if(user){ const nm=myHandle||user.displayName||(user.email?user.email.split('@')[0]:'account');
+    btn.textContent=nm.length>14?nm.slice(0,13)+'\u2026':nm; btn.classList.add('signedin'); }
+  else { btn.innerHTML='LOG&nbsp;IN'; btn.classList.remove('signedin'); }
+}
+function openAuth(user){
+  const form=authEl('authForm'), acct=authEl('authAccount');
+  if(user){ form.style.display='none'; acct.style.display='';
+    authEl('authWho').textContent='Signed in as '+(user.email||user.displayName||'your account');
+    authEl('authHandleLine').innerHTML= myHandle ? 'Display name: <b>'+escapeHtml(myHandle)+'</b>' : 'No display name set yet \u2014 tap below to choose one.'; }
+  else { form.style.display=''; acct.style.display='none'; authSetMode('signin');
+    authEl('authEmail').value=''; authEl('authPass').value=''; authEl('authPass2').value=''; authEl('authName').value='';
+    authEl('authPass').type='password'; authEl('authPass2').type='password'; var _sp=authEl('authShowPw'); if(_sp) _sp.textContent='Show password'; }
+  authMsg(''); authEl('authOv').classList.add('show');
+}
+function closeAuth(){ authEl('authOv').classList.remove('show'); }
+function friendlyAuthErr(e){
+  const c=(e&&e.code)||'';
+  if(c.indexOf('invalid-email')>=0) return 'That email doesn\u2019t look right.';
+  if(c.indexOf('user-not-found')>=0||c.indexOf('wrong-password')>=0||c.indexOf('invalid-credential')>=0) return 'Email or password is incorrect.';
+  if(c.indexOf('email-already-in-use')>=0) return 'That email already has an account \u2014 try signing in.';
+  if(c.indexOf('weak-password')>=0) return 'Password should be at least 6 characters.';
+  if(c.indexOf('too-many-requests')>=0) return 'Too many attempts \u2014 wait a bit and try again.';
+  if(c.indexOf('network')>=0) return 'Network problem \u2014 check your connection and retry.';
+  return (e&&e.message)||'Something went wrong. Please try again.';
+}
+tap(document.getElementById('hubLogin'),()=>{
+  if(!authReady){ hubToast('Sign-in is offline right now \u2014 check your connection.'); return; }
+  openAuth(auth.currentUser);
+});
+if(authReady){
+  // show/hide password toggle (native masking; no per-char reveal)
+  (function(){ const t=authEl('authShowPw'); if(!t) return; let shown=false;
+    t.addEventListener('click',()=>{ shown=!shown; const tp=shown?'text':'password';
+      authEl('authPass').type=tp; authEl('authPass2').type=tp; t.textContent=shown?'Hide password':'Show password'; });
+  })();
+  tap(authEl('authClose'),closeAuth);
+  tap(authEl('authToggle'),()=>authSetMode(authMode==='signup'?'signin':'signup'));
+  tap(authEl('authPrimary'),async()=>{
+    const email=authEl('authEmail').value.trim(), pass=authEl('authPass').value;
+    if(!email||!pass){ authMsg('Enter your email and password.'); return; }
+    if(authMode==='signup' && authEl('authName').value.trim().length<2){ authMsg('Choose a display name (at least 2 characters) to sign up.'); return; }
+    if(authMode==='signup' && pass!==authEl('authPass2').value){ authMsg('Passwords don\u2019t match \u2014 please re-enter.'); return; }
+    authBusy(true); authMsg('');
+    try{
+      if(authMode==='signup'){
+        const dn=authEl('authName').value.trim();
+        if(dn) handleAutoPrompted=true;
+        const cred=await auth.createUserWithEmailAndPassword(email,pass);
+        closeAuth();
+        if(cred.user){
+          if(dn){ const r=await claimHandle(dn); if(!r.ok){ handleAutoPrompted=true; openHandleModal({prefill:dn,msg:handleErrMsg(r.reason)}); } }
+          try{ await cred.user.sendEmailVerification(); }catch(_){}
+        }
+      } else {
+        await auth.signInWithEmailAndPassword(email,pass);
+        closeAuth();
+      }
+    }catch(e){ authMsg(friendlyAuthErr(e)); }
+    authBusy(false);
+  });
+  tap(authEl('authGoogle'),async()=>{
+    authBusy(true); authMsg('');
+    try{ const provider=new firebase.auth.GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });   // always show the account chooser
+      await auth.signInWithPopup(provider);
+      // success (close modal, clear busy) is handled by onAuthStateChanged, so the UI never hangs on the popup
+    }catch(e){ const c=(e&&e.code)||'';
+      if(c.indexOf('popup-closed-by-user')>=0||c.indexOf('cancelled-popup')>=0){ authMsg(''); }
+      else if(c.indexOf('popup-blocked')>=0){ authMsg('Your browser blocked the popup \u2014 allow popups for this site, or use email sign-in below.'); }
+      else { authMsg(friendlyAuthErr(e)); }
+      authBusy(false);
+    }
+  });
+  tap(authEl('authForgot'),async()=>{
+    const email=authEl('authEmail').value.trim();
+    if(!email){ authMsg('Type your email above first, then tap Forgot password.'); return; }
+    try{ await auth.sendPasswordResetEmail(email); authMsg('Reset email sent \u2014 check your inbox.'); }
+    catch(e){ authMsg(friendlyAuthErr(e)); }
+  });
+  tap(authEl('authEditName'),()=>{ openMyProfile(); });
+  tap(authEl('authLogout'),async()=>{ try{ await auth.signOut(); }catch(_){} myHandle=null; myHandleKey=null; handleAutoPrompted=false; updateAuthUI(null); refreshEligNotice(); closeAuth(); });
+  tap(authEl('handleSkip'),()=>{ handleOnDone=null; closeHandle(); });
+  tap(authEl('handleLogout'),async()=>{ handleOnDone=null; try{ await auth.signOut(); }catch(_){} myHandle=null; myHandleKey=null; handleAutoPrompted=false; closeHandle(); hideBootGate(); updateAuthUI(null); refreshEligNotice(); });
+  tap(authEl('handleSave'),async()=>{
+    const v=authEl('handleInput').value;
+    const newKey=String(v||'').trim().replace(/\s+/g,' ').toLowerCase();
+    if(myHandle && myHandleKey && newKey && newKey!==myHandleKey && !handleConfirmPending){
+      handleConfirmPending=true;
+      authEl('handleErr').style.color='#c08a2a';
+      authEl('handleErr').textContent='Changing your name releases \u201c'+myHandle+'\u201d \u2014 anyone can claim it. Tap again to confirm.';
+      authEl('handleSave').textContent='Confirm change';
+      return;
+    }
+    authEl('handleSave').disabled=true; authEl('handleErr').style.color=''; authEl('handleErr').textContent='';
+    const r=await claimHandle(v);
+    authEl('handleSave').disabled=false; handleConfirmPending=false; authEl('handleSave').textContent='Save name';
+    if(r.ok){ const cb=handleOnDone; handleOnDone=null; closeHandle(); hideBootGate(); if(cb) cb(); }
+    else { authEl('handleErr').style.color=''; authEl('handleErr').textContent=handleErrMsg(r.reason); }
+  });
+  authEl('handleInput').addEventListener('input',()=>{ if(handleConfirmPending){ handleConfirmPending=false; authEl('handleSave').textContent='Save name'; authEl('handleErr').style.color=''; authEl('handleErr').textContent=''; } });
+  auth.onAuthStateChanged(async user=>{
+    authResolved=true;
+    const wasSignedIn=prevSignedIn; prevSignedIn=!!user;
+    if(user && !wasSignedIn && stateWasLoaded){ wipeLoadedChallenge(); }  // Option B: logging in clears a pasted state
+    const curUid=user?user.uid:null;                                       // item 2: account-scope the challenge run
+    if((challengeMeta.started||challengeMeta.solved) && challengeOwnerUid!==curUid){ wipeLoadedChallenge(); }
+    challengeOwnerUid=curUid;
+    updateAuthUI(user);
+    await loadMyHandle(user);
+    updateAuthUI(user); refreshEligNotice();
+    if(typeof curHubTab!=='undefined' && curHubTab==='members') loadMembers();  // refresh members after auth resolves
+    if(!user){ handleAutoPrompted=false; closeHandle(); closeAuth(); hideBootGate(); return; }   // logged out -> reveal
+    closeAuth(); authBusy(false);                 // auth completed: drop the busy state and close the login modal
+    if(!myHandle){                                 // signed in, no name -> hold the veil, keep the forced modal up
+      handleAutoPrompted=true;
+      if(!authEl('handleOv').classList.contains('show')) openHandleModal({force:true});
+    } else { hideBootGate(); }                      // signed in with a name -> reveal
+  });
+}
+// install affordance (Add to Home Screen)
+let deferredPrompt=null;
+const installBtn=document.getElementById('hubInstall');
+const isiOS=/iphone|ipad|ipod/i.test(navigator.userAgent||'');
+const standalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
+function showInstallBtn(label){ if(installBtn && !standalone){ installBtn.textContent=label; installBtn.style.display='block'; } }
+if(installBtn && !standalone){ showInstallBtn(isiOS?'+ Add DialHub to Home Screen':'+ Install DialHub'); }
+window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); deferredPrompt=e; showInstallBtn('+ Install DialHub'); });
+window.addEventListener('appinstalled',()=>{ deferredPrompt=null; if(installBtn) installBtn.style.display='none'; });
+if(installBtn) tap(installBtn,async()=>{
+  if(deferredPrompt){ deferredPrompt.prompt(); try{ await deferredPrompt.userChoice; }catch(_){} deferredPrompt=null; }
+  else if(isiOS){ hubToast('Tap the Share icon, then \u201cAdd to Home Screen\u201d'); }
+  else { hubToast('Open your browser menu \u2192 \u201cInstall app\u201d / \u201cAdd to Home screen\u201d. On Samsung Internet, look for the install icon in the address bar.'); }
+});
+renderHub();
+(function bootNav(){
+  let start='hub';
+  try{ const s=sessionStorage.getItem('thedial.screen'); if(s) start=s; }catch(_){}
+  if(['hub','menu','settings','challengeIntro','game','vault','leaderboard'].indexOf(start)<0) start='hub';
+  navStack=[start];
+  try{ history.replaceState({screen:start,n:1},''); }catch(_){}
+  suppressHist=true;
+  if(start==='game'){
+    // refresh landed on the dial: re-enter the mode we were in so the live mechanism + its UI load
+    // (was drawing an un-loaded dial -> blank screen). challenge re-enters running so the clock can't be frozen by refreshing.
+    if(mode==='challenge' && challengeData && challengeMeta.started) enterChallenge();
+    else enterPractice();
+  }
+  else showScreen(start);
+  suppressHist=false;
+})();
+window.addEventListener('popstate',function(){
+  if(navStack.length>1){
+    navStack.pop();
+    const prev=navStack[navStack.length-1];
+    suppressHist=true; showScreen(prev); suppressHist=false;
+  }
+  // at the first screen, doing nothing lets the next back close the app naturally
+});
+requestAnimationFrame(frame);
+requestAnimationFrame(vaultFrame);
+})();
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
+}
+</script>
+</body>
+</html>
