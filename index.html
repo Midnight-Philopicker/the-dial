@@ -445,7 +445,7 @@
   </div>
   <div class="feedback">feedback &rarr; <a href="mailto:alockisalock@gmail.com?subject=THE%20DIAL%20%E2%80%94%20feedback">alockisalock@gmail.com</a></div>
   <!-- simulator version tag: BUMP the number by 1 on every DIAL simulator update (v.NNs; s = server era). separate from the sw cache version -->
-  <div id="verTag" style="text-align:right;font-size:10px;letter-spacing:1.5px;color:#3d434c;font-family:ui-monospace,monospace;padding:6px 8px 4px;user-select:none;">v.46s</div>
+  <div id="verTag" style="text-align:right;font-size:10px;letter-spacing:1.5px;color:#3d434c;font-family:ui-monospace,monospace;padding:6px 8px 4px;user-select:none;">v.47s</div>
 </div>
 
 <!-- ===================== SETTINGS ===================== -->
@@ -627,7 +627,7 @@
 
 <div class="ov" id="catOv">
   <div class="catcard">
-    <img src="dial-plate.jpg" alt="">
+    <img src="https://assets.thedial.ca/dial-plate.jpg" alt="">
     <button class="catclose" id="catClose" aria-label="close">&times;</button>
   </div>
 </div>
@@ -636,9 +636,9 @@
   <div class="catcard" style="position:relative;">
     <button class="catclose" id="plateClose" aria-label="close" style="position:absolute;top:8px;right:8px;z-index:3;">&times;</button>
     <div id="plateStage" style="position:relative;width:100%;height:76vh;">
-      <img id="plateImg1" src="dial-grain.png"  alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:1;transition:opacity .9s ease;">
-      <img id="plateImg2" src="dial-sheen.png"  alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .9s ease;">
-      <img id="plateImg3" src="dial-patina.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .9s ease;">
+      <img id="plateImg1" src="https://assets.thedial.ca/dial-grain.png"  alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:1;transition:opacity .9s ease;">
+      <img id="plateImg2" src="https://assets.thedial.ca/dial-sheen.png"  alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .9s ease;">
+      <img id="plateImg3" src="https://assets.thedial.ca/dial-patina.png" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .9s ease;">
     </div>
   </div>
 </div>
@@ -1955,9 +1955,9 @@ tap(document.getElementById('loadGo'),()=>{
 });
 
 /* ---- plate overlay ---- */
-const sndMeow=new Audio('dial-hum.mp3');
-const sndPurr=new Audio('dial-idle.mp3'); sndPurr.loop=true;
-const sndPlate=new Audio('dial-tick.m4a'); sndPlate.loop=false;
+const sndMeow=new Audio('https://assets.thedial.ca/dial-hum.mp3');
+const sndPurr=new Audio('https://assets.thedial.ca/dial-idle.mp3'); sndPurr.loop=true;
+const sndPlate=new Audio('https://assets.thedial.ca/dial-tick.m4a'); sndPlate.loop=false;
 sndMeow.addEventListener('ended',()=>{
   if(document.getElementById('catOv').classList.contains('show')){
     try{ sndPurr.currentTime=0; sndPurr.play().catch(()=>{}); }catch(_){}
