@@ -445,7 +445,7 @@
   </div>
   <div class="feedback">feedback &rarr; <a href="mailto:alockisalock@gmail.com?subject=THE%20DIAL%20%E2%80%94%20feedback">alockisalock@gmail.com</a></div>
   <!-- simulator version tag: BUMP the number by 1 on every DIAL simulator update (v.NNs; s = server era). separate from the sw cache version -->
-  <div id="verTag" style="text-align:right;font-size:10px;letter-spacing:1.5px;color:#3d434c;font-family:ui-monospace,monospace;padding:6px 8px 4px;user-select:none;">v.48s</div>
+  <div id="verTag" style="text-align:right;font-size:10px;letter-spacing:1.5px;color:#3d434c;font-family:ui-monospace,monospace;padding:6px 8px 4px;user-select:none;">v.49s</div>
 </div>
 
 <!-- ===================== SETTINGS ===================== -->
@@ -706,7 +706,10 @@ const T = {
   GATE_HALF:1.25,        // gate half-width -> ~2.5 numbers wide
   OPEN_TOL:1.4,
   LEVEL:[0.34,0.18,0.0],    // contact-height baseline by binding rank (loading+size bias; proudest reads first). spread kept from prior tuning so reading-order feel is preserved; the gate is now a separate notch
-  SPAN_BASE:10, CONTACT_C:10,
+  SPAN_BASE:8, CONTACT_C:10, DROP_C:6,
+  // CONTACT_C is the reading-zone CENTRE (slope/hook edges sit at CONTACT_C +/- SPAN_BASE/2 = 6..14).
+  // DROP_C is where the lever actually SEATS: the left contact edge (6), not the centre. Gravity, arming,
+  // relock, and the bolt-pull origin all key off DROP_C; only the height reading keys off CONTACT_C.
   ECC_AMP:0.15,             // oval amplitude seed (two highs / two lows per turn, varied per wheel) -> ~0.3 read ripple, faint texture under the gate
   // true-gate notch: a flat-bottomed dip cut into each wheel's height profile AT the combo number, at an
   // arbitrary spot around the oval. THIS, not the oval low, is what the read seeks. Deep enough to always hand
@@ -716,7 +719,7 @@ const T = {
   GATE_EDGE:1.25,           // |gd|>=this is baseline; ramp between floor and edge (first movement ~1.25 off; matches bench)
   FENCE_TOP:0.55,           // reference full height (tallest wheel at its high); read droop measured down from here
   HOOK_FRAC:0.4,            // how much the muted left (hook) edge moves vs the right (slope) measuring edge
-  retract:95, contactLo:5, contactHi:15, relockShift:6,
+  retract:96, contactLo:6, contactHi:14, relockShift:6,
   dropReset:2,            // numbers past the drop point (toward hunting) that throws the pack off
   retractDrag:0.28,       // held-turn: loaded-bolt resistance (flat, heavy, still turnable)
   retractGrip:0.38,       // finger-drag: dial moves this fraction of finger travel while retracting (heavier than loaded)
@@ -784,9 +787,13 @@ function buzz(p){ if(settings.haptic && navigator.vibrate) navigator.vibrate(p);
 /* ===========================================================================
    MECHANISM
    =========================================================================== */
+function thirdHardForbidden(n){ return n>=6 && n<=20; }   // contact area + fly foul: never settable, never generated
 function makeCombo(){
   let n3,n2,n1,t=0;
-  do{ n3=randInt(26,99); n2=randInt(0,99); n1=randInt(0,99); t++; }
+  do{
+    do{ n3=randInt(0,99); } while(thirdHardForbidden(n3));   // full allowed range incl. soft bands 95-5 / 21-25
+    n2=randInt(0,99); n1=randInt(0,99); t++;
+  }
   while((circDist(n1,n2)<=5||circDist(n2,n3)<=5)&&t<2000);
   return [n1,n2,n3];
 }
@@ -857,7 +864,7 @@ function wheelHeight(i){
 function computeContact(){
   // merged (single centre point) shows exactly when the lock is aligned enough to open —
   // same check as the open logic, so the display can never disagree with whether it opens
-  if(allGatesAligned()) return {allGate:false, merged:true, left:T.CONTACT_C, right:T.CONTACT_C, span:0, dom:-1};
+  if(allGatesAligned()) return {allGate:false, merged:true, left:T.DROP_C, right:T.DROP_C, span:0, dom:-1};
   // The fence rests on the tallest wheel still holding it up. A wheel sitting on its gate drops out of
   // the pool (its deep notch lets the fence pass), handing the fence down to the next-tallest wheel. So
   // the read tracks that fence height: gating the tallest wheel drops the read to the next one, a shorter
@@ -869,7 +876,7 @@ function computeContact(){
     const h=wheelHeight(i);               // gate is baked into the height profile now (notch), no binary drop-out
     if(h>fence){ fence=h; dom=i; }
   }
-  if(dom<0) return {allGate:false, merged:true, left:T.CONTACT_C, right:T.CONTACT_C, span:0, dom:-1};
+  if(dom<0) return {allGate:false, merged:true, left:T.DROP_C, right:T.DROP_C, span:0, dom:-1};
   let droop=(T.FENCE_TOP-fence)*gateGain;   // how far the fence has fallen from full height (gateGain = per-lock clarity)
   if(droop<0) droop=0;
   const slope=T.CONTACT_C+T.SPAN_BASE/2 - droop;            // right: sensitive measuring edge (the one you read)
@@ -882,8 +889,8 @@ function computeContact(){
    =========================================================================== */
 function allGatesAligned(){ return gateDelta(0)<T.OPEN_TOL && gateDelta(1)<T.OPEN_TOL && gateDelta(2)<T.OPEN_TOL; }
 function contactSignedDist(a){
-  // signed circular distance from the dial position to the contact centre (-50..50]; >0 = above centre
-  let p=mod(a,100), d=p-T.CONTACT_C;
+  // signed circular distance from the dial position to the DROP point (-50..50]; >0 = above it
+  let p=mod(a,100), d=p-T.DROP_C;
   if(d>50) d-=100; else if(d<-50) d+=100;
   return d;
 }
@@ -970,7 +977,7 @@ function applyMotion(dpos,isFinger){
 
   if(opened){
     // bring the pack back up through the drop point to re-lock
-    if(dir===LEFT && crossed(accPrev,acc,T.CONTACT_C)) relock();
+    if(dir===LEFT && crossed(accPrev,acc,T.DROP_C)) relock();
   } else if(allGate || armed){
     // once the lever is seated (armed), the retraction commits even if passing the 3rd number picks that
     // wheel up (allGate goes false) — the bolt's weight carries the fence with the wheel; it keeps pulling.
@@ -991,10 +998,10 @@ function applyMotion(dpos,isFinger){
     if(!armed){
       // the lever seats the instant the dial reaches the contact centre (settled or crossed through),
       // so reversing out from here resets the pack — but the spring pull above stays in effect
-      if(crossed(accPrev,acc,T.CONTACT_C) || Math.abs(contactSignedDist(acc))<T.ARM_AT){
+      if(crossed(accPrev,acc,T.DROP_C) || Math.abs(contactSignedDist(acc))<T.ARM_AT){
         armed=true; kickT=T.pickupKick;
         buzz(30); if(settings.visual) blipT=0.4;
-        setStatus('\u25cf lever dropped at '+T.CONTACT_C+' \u2014 turn toward '+T.retract+' to pull the bolt','var(--amber)');
+        setStatus('\u25cf lever dropped at '+T.DROP_C+' \u2014 turn toward '+T.retract+' to pull the bolt','var(--amber)');
       }
     } else {
       if(dir===RIGHT && crossed(accPrev,acc,T.retract)){
@@ -1003,7 +1010,7 @@ function applyMotion(dpos,isFinger){
         acc=B; pos=T.retract; driveWheels(acc);
         openAnchorAcc=B; opened=true; armed=false;
         onOpened();
-      } else if(dir===LEFT && crossed(accPrev,acc,T.CONTACT_C+T.dropReset)){
+      } else if(dir===LEFT && crossed(accPrev,acc,T.DROP_C+T.dropReset)){
         // turned back up past the drop instead of pulling the bolt — throws the pack off
         relock();
       }
@@ -1176,7 +1183,7 @@ function draw(){
 
   if(debug && contact && !contact.allGate){
     if(contact.merged){
-      const sa=((T.CONTACT_C/100)*Math.PI*2)-Math.PI/2+ringAng;
+      const sa=((T.DROP_C/100)*Math.PI*2)-Math.PI/2+ringAng;
       ctx.fillStyle=armed?'#4cc6c0':'#e8a33d';
       ctx.beginPath();ctx.arc(Math.cos(sa)*(R+4),Math.sin(sa)*(R+4),zoom?8.5:6,0,7);ctx.fill();
     } else {
@@ -1225,7 +1232,7 @@ function drawHud(){
   ctx.fillText('CONTACT GAP',W/2-140,cy2);
   if(contact && contact.merged && engaged===0){
     ctx.fillStyle=armed?'#4cc6c0':'#e8a33d';ctx.font='13px ui-monospace,monospace';ctx.textAlign='right';
-    ctx.fillText(armed?'lever dropped \u00b7 pull to '+T.retract:'gates aligned \u2014 drop at '+T.CONTACT_C,W/2+140,cy2+1);
+    ctx.fillText(armed?'lever dropped \u00b7 pull to '+T.retract:'gates aligned \u2014 drop at '+T.DROP_C,W/2+140,cy2+1);
   } else if(contact && !contact.allGate && engaged===0){
     ctx.fillStyle='#d6324a';ctx.font='14px ui-monospace,monospace';ctx.textAlign='right';
     ctx.fillText('slope '+contact.right.toFixed(2)+'   hook '+contact.left.toFixed(2),W/2+140,cy2+1);
@@ -1242,7 +1249,7 @@ function drawZoomHud(){
   ctx.fillText('CONTACT ZONE  (feather slowly; feel the edges)',34,26);
   if(debug && contact && contact.merged && engaged===0){
     ctx.fillStyle=armed?'#4cc6c0':'#e8a33d';ctx.font='17px ui-monospace,monospace';ctx.textAlign='left';
-    ctx.fillText(armed?'\u25cf lever dropped \u2014 pull to '+T.retract:'\u25cf gates aligned \u2014 drop at '+T.CONTACT_C,34,54);
+    ctx.fillText(armed?'\u25cf lever dropped \u2014 pull to '+T.retract:'\u25cf gates aligned \u2014 drop at '+T.DROP_C,34,54);
     ctx.textAlign='left';
   } else if(debug && contact && !contact.allGate && engaged===0){
     ctx.fillStyle='#d6324a';ctx.font='22px ui-monospace,monospace';ctx.fillText('slope '+contact.right.toFixed(2),34,56);
@@ -1288,7 +1295,7 @@ function renderPractice(){
   const roStr=roSeq.map(wi=>{ const lbl=ordN(3-wi); return wheelOnGate(wi)?'<span class="ok">'+lbl+'</span>':lbl; }).join(' \u2192 ');
   rows+='<span class="k">reading order</span> <span class="v">'+roStr+'</span><br>';
   rows+='<span class="k">carried</span> '+engaged+'/3 &nbsp; <span class="k">gap</span> '+
-    (contact&&contact.merged&&engaged===0?'<span class="ok">'+(armed?'LEVER DROPPED — pull to '+T.retract:'ALIGNED — drop at '+T.CONTACT_C)+'</span>'
+    (contact&&contact.merged&&engaged===0?'<span class="ok">'+(armed?'LEVER DROPPED — pull to '+T.retract:'ALIGNED — drop at '+T.DROP_C)+'</span>'
      :contact&&!contact.allGate&&engaged===0?'slope '+contact.right.toFixed(2)+' hook '+contact.left.toFixed(2)
      :'(masked/off)');
   el.innerHTML=rows;
@@ -2131,10 +2138,10 @@ function validateCombo(n){
     errs.push('each number must be a whole number from 0 to 99');
     return {bad:bad,errs:errs,warns:warns,valid:false};
   }
-  // HARD: the true forbidden zone (4-12) — the contact area, always present regardless of splining
-  if(n[2]>=4&&n[2]<=12){ bad[2]=true; errs.push('the 3rd number can\u2019t be 4\u201312 \u2014 that\u2019s the forbidden zone (the contact area), it won\u2019t set'); }
-  // SOFT: 0-20 or 90-99 depends on how the dial is splined
-  else if(n[2]<=20||n[2]>=90){ warns.push('keep the 3rd number out of 0\u201320 and 90\u201399 if you can \u2014 the exact forbidden zone shifts with how the dial is splined, so this range is risky unless you know your spline'); }
+  // HARD: the true forbidden zone (6-20) — the contact area + fly foul, always present
+  if(thirdHardForbidden(n[2])){ bad[2]=true; errs.push('the 3rd number can\u2019t be 6\u201320 \u2014 that\u2019s the forbidden zone (the contact area), it won\u2019t set'); }
+  // SOFT: 95-5 and 21-25 sit close to the contacts — a real lock allows them, just not recommended
+  else if(n[2]>=95||n[2]<=5||(n[2]>=21&&n[2]<=25)){ warns.push('the 3rd number is in a not-recommended band (95\u201305 or 21\u201325) \u2014 it works, but sits close to the contact area'); }
   // SOFT: adjacent numbers under 5 apart — allowed on a real lock, just hard to read (S&G advises against it)
   if(circDist(n[0],n[1])<5){ warns.push('the 1st and 2nd numbers are under 5 apart \u2014 the lock allows it, but they get hard to tell apart (S&G recommends at least 5)'); }
   if(circDist(n[1],n[2])<5){ warns.push('the 2nd and 3rd numbers are under 5 apart \u2014 the lock allows it, but they get hard to tell apart (S&G recommends at least 5)'); }
