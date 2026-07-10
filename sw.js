@@ -1,5 +1,5 @@
 /* DialHub / THE DIAL — offline service worker. Created by Isaac Hashman (Midnight Philopicker). */
-const CACHE = 'thedial-v92';
+const CACHE = 'thedial-v93';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest',
   './icon-192.png', './icon-512.png', './icon-512-maskable.png', './icon-180.png',
