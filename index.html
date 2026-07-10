@@ -445,7 +445,7 @@
   </div>
   <div class="feedback">feedback &rarr; <a href="mailto:alockisalock@gmail.com?subject=THE%20DIAL%20%E2%80%94%20feedback">alockisalock@gmail.com</a></div>
   <!-- simulator version tag: BUMP the number by 1 on every DIAL simulator update (v.NNs; s = server era). separate from the sw cache version -->
-  <div id="verTag" style="text-align:right;font-size:10px;letter-spacing:1.5px;color:#3d434c;font-family:ui-monospace,monospace;padding:6px 8px 4px;user-select:none;">v.49s</div>
+  <div id="verTag" style="text-align:right;font-size:10px;letter-spacing:1.5px;color:#3d434c;font-family:ui-monospace,monospace;padding:6px 8px 4px;user-select:none;">v.50s</div>
 </div>
 
 <!-- ===================== SETTINGS ===================== -->
@@ -787,7 +787,7 @@ function buzz(p){ if(settings.haptic && navigator.vibrate) navigator.vibrate(p);
 /* ===========================================================================
    MECHANISM
    =========================================================================== */
-function thirdHardForbidden(n){ return n>=6 && n<=20; }   // contact area + fly foul: never settable, never generated
+function thirdHardForbidden(n){ return n>=5 && n<=16; }   // contact area + fly foul: never settable, never generated
 function makeCombo(){
   let n3,n2,n1,t=0;
   do{
@@ -2138,10 +2138,10 @@ function validateCombo(n){
     errs.push('each number must be a whole number from 0 to 99');
     return {bad:bad,errs:errs,warns:warns,valid:false};
   }
-  // HARD: the true forbidden zone (6-20) — the contact area + fly foul, always present
-  if(thirdHardForbidden(n[2])){ bad[2]=true; errs.push('the 3rd number can\u2019t be 6\u201320 \u2014 that\u2019s the forbidden zone (the contact area), it won\u2019t set'); }
-  // SOFT: 95-5 and 21-25 sit close to the contacts — a real lock allows them, just not recommended
-  else if(n[2]>=95||n[2]<=5||(n[2]>=21&&n[2]<=25)){ warns.push('the 3rd number is in a not-recommended band (95\u201305 or 21\u201325) \u2014 it works, but sits close to the contact area'); }
+  // HARD: the true forbidden zone (5-16) — the contact area + fly foul, always present
+  if(thirdHardForbidden(n[2])){ bad[2]=true; errs.push('the 3rd number can\u2019t be 5\u201316 \u2014 that\u2019s the forbidden zone (the contact area), it won\u2019t set'); }
+  // SOFT: 0-4 and 17-20 sit just outside the forbidden zone — a real lock allows them, just not recommended
+  else if(n[2]<=4||(n[2]>=17&&n[2]<=20)){ warns.push('the 3rd number is in a not-recommended band (0\u20134 or 17\u201320) \u2014 it works, but sits close to the forbidden zone'); }
   // SOFT: adjacent numbers under 5 apart — allowed on a real lock, just hard to read (S&G advises against it)
   if(circDist(n[0],n[1])<5){ warns.push('the 1st and 2nd numbers are under 5 apart \u2014 the lock allows it, but they get hard to tell apart (S&G recommends at least 5)'); }
   if(circDist(n[1],n[2])<5){ warns.push('the 2nd and 3rd numbers are under 5 apart \u2014 the lock allows it, but they get hard to tell apart (S&G recommends at least 5)'); }
